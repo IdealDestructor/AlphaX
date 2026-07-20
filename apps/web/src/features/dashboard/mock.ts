@@ -1,0 +1,73 @@
+import type { DashboardData } from "./types";
+
+export const dashboardMock: DashboardData = {
+  updatedAt: "更新于 16:42:08 UTC+8",
+  kpi: {
+    price: 2384.6,
+    priceChangeAbs: 9.9,
+    priceChangePct: 0.42,
+    confidence: 78,
+    confidenceDelta: 6,
+    riskLevel: "medium",
+    atr: 18.4,
+    sentiment: 62,
+    sentimentLabel: "偏多 · 机构净流入",
+  },
+  ticker: [
+    { symbol: "XAUUSD", price: "2,384.60", change: "▲ +0.42%", direction: "up" },
+    { symbol: "XAGUSD", price: "28.74", change: "▼ −0.18%", direction: "down" },
+    { symbol: "DXY", price: "104.28", change: "▼ −0.11%", direction: "down" },
+    { symbol: "US10Y", price: "4.21%", change: "▲ +2.0bp", direction: "up" },
+    { symbol: "BTC", price: "67,420", change: "▲ +1.24%", direction: "up" },
+    { symbol: "VIX", price: "13.8", change: "▼ −0.6", direction: "down" },
+    { symbol: "NAS100", price: "19,842", change: "▲ +0.35%", direction: "up" },
+  ],
+  analysis: {
+    symbol: "XAUUSD",
+    trend: "bullish",
+    action: "wait",
+    confidence: 78,
+    riskLevel: "medium",
+    levels: {
+      entry: "2,378.0 – 2,381.5",
+      stopLoss: "2,364.0",
+      takeProfit: "2,412.0 / 2,428.0",
+    },
+    reasons: [
+      "4H 站稳 EMA20/50，结构仍为更高低点",
+      "DXY 回落 + 美债收益率企稳，美元压力缓解",
+      "GLD ETF 连续 3 日净流入，Smart Money 偏多",
+      "短线 RSI 超买，优先等回踩再入场，而非追高",
+    ],
+    evidence: [
+      { source: "技术结构 · 4H", signal: "HH/HL", weight: 0.32 },
+      { source: "宏观 · DXY / US10Y", signal: "美元弱", weight: 0.24 },
+      { source: "资金 · GLD ETF", signal: "净流入", weight: 0.22 },
+      { source: "情绪 · 新闻 NLP", signal: "偏多", weight: 0.14 },
+      { source: "动量 · RSI/MACD", signal: "过热", weight: 0.08 },
+    ],
+    updatedAt: "更新 16:41:52",
+    model: "fusion-v2.1",
+  },
+  signals: [
+    { time: "16:20", symbol: "XAUUSD", side: "buy", entry: "2,376.4", confidence: 72, outcome: "进行中", outcomeDirection: "up" },
+    { time: "14:05", symbol: "XAUUSD", side: "sell", entry: "2,391.2", confidence: 61, outcome: "止损 −0.4R", outcomeDirection: "down" },
+    { time: "11:40", symbol: "XAUUSD", side: "buy", entry: "2,358.0", confidence: 81, outcome: "止盈 +1.6R", outcomeDirection: "up" },
+    { time: "09:15", symbol: "XAUUSD", side: "wait", entry: "—", confidence: 54, outcome: "已过期", outcomeDirection: "flat" },
+    { time: "昨日", symbol: "XAGUSD", side: "buy", entry: "28.41", confidence: 69, outcome: "止盈 +1.1R", outcomeDirection: "up" },
+  ],
+  sentiment: {
+    score: 62,
+    label: "偏多 — 机构资金与新闻情绪同步改善，但短线动能过热。",
+    longPct: 58,
+    shortPct: 27,
+    etfInflow: "+$412M",
+    cotChange: "+8.2k",
+  },
+  news: [
+    { time: "16:18", title: "美联储官员放缓降息预期，美元短线承压", tag: "利多金", tagTone: "pos", source: "Reuters · AI 摘要" },
+    { time: "15:02", title: "GLD 连续第三日获净申购，ETF 持仓升至四周高位", tag: "资金", tagTone: "pos", source: "Bloomberg" },
+    { time: "12:40", title: "中东地缘风险降温，避险溢价部分回吐", tag: "中性偏空", tagTone: "neg", source: "FT" },
+    { time: "09:55", title: "中国央行增持黄金传闻再起，实物需求预期升温", tag: "宏观", tagTone: "pos", source: "本地编译" },
+  ],
+};

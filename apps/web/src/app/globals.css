@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Dark default — aligned with UI_UX_SPEC §3 */
+  --bg: #07090c;
+  --bg-elevated: #0e1218;
+  --bg-panel: #121820;
+  --border: #1e2633;
+  --border-subtle: #171d28;
+
+  --text: #e8edf5;
+  --text-secondary: #9aa6b8;
+  --text-muted: #6b7689;
+
+  /* Calm green primary accent — not purple */
+  --accent: #3ecf8e;
+  --accent-muted: #1f3d32;
+
+  --bullish: #22c55e;
+  --bearish: #ef4444;
+  --neutral: #94a3b8;
+  --warning: #f59e0b;
+
+  --focus: #5b9fd4;
+  --danger: #ef4444;
+
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Roboto Mono", ui-monospace, Menlo, monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

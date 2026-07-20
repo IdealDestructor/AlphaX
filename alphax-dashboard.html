@@ -1,0 +1,2042 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AlphaX · 市场总览</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-warm: #162238;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --meta: #38bdf8;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --accent: #38bdf8;
+      --accent-on: #03111a;
+      --accent-hover: color-mix(in oklab, var(--accent), black 8%);
+      --accent-active: color-mix(in oklab, var(--accent), black 14%);
+      --success: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --font-display: Inter, system-ui, sans-serif;
+      --font-body: Inter, system-ui, sans-serif;
+      --font-mono: "Roboto Mono", "SF Mono", ui-monospace, Menlo, monospace;
+      --text-xs: 11px;
+      --text-sm: 12px;
+      --text-base: 14px;
+      --text-lg: 16px;
+      --text-xl: 20px;
+      --text-2xl: 28px;
+      --text-3xl: 40px;
+      --text-4xl: 56px;
+      --leading-body: 1.45;
+      --leading-tight: 1.08;
+      --tracking-display: -0.01em;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --section-y-desktop: 80px;
+      --section-y-tablet: 60px;
+      --section-y-phone: 42px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-pill: 9999px;
+      --elev-flat: none;
+      --elev-ring: 0 0 0 1px var(--border);
+      --elev-raised: 0 24px 80px rgba(0, 0, 0, 0.42);
+      --focus-ring: 0 0 0 4px rgba(56, 189, 248, 0.28);
+      --motion-fast: 90ms;
+      --motion-base: 160ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+      --container-max: 1320px;
+      --container-gutter-desktop: 36px;
+      --container-gutter-tablet: 24px;
+      --container-gutter-phone: 16px;
+      --sidebar-w: 240px;
+      --hairline: color-mix(in oklab, var(--fg) 7%, var(--border));
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: var(--leading-body);
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      min-height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select { font: inherit; color: inherit; }
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: none;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .skip-link {
+      position: absolute;
+      left: var(--space-3);
+      top: -48px;
+      z-index: 100;
+      background: var(--accent);
+      color: var(--accent-on);
+      padding: 8px 12px;
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+    .skip-link:focus { top: var(--space-3); }
+
+    /* Sidebar */
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border);
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      color: var(--accent-on);
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: var(--text-xs);
+      flex-shrink: 0;
+    }
+    .brand-text {
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      font-size: var(--text-sm);
+    }
+    .brand-sub {
+      font-size: var(--text-xs);
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: var(--space-2);
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-group {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: var(--space-4) var(--space-3) var(--space-2);
+      font-weight: 600;
+      font-family: var(--font-body);
+    }
+    .nav a {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: 8px var(--space-3);
+      color: var(--fg-2);
+      font-size: var(--text-sm);
+      border-left: 2px solid transparent;
+      transition: background var(--motion-fast) var(--ease-standard), color var(--motion-fast) var(--ease-standard);
+      min-height: 40px;
+    }
+    .nav a:hover {
+      background: var(--surface-warm);
+      color: var(--fg);
+    }
+    .nav a.active {
+      background: color-mix(in oklab, var(--accent) 12%, var(--surface));
+      color: var(--fg);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+    .nav a svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.75; }
+    .nav a.active svg { opacity: 1; color: var(--accent); }
+
+    .sidebar-foot {
+      border-top: 1px solid var(--border);
+      padding: var(--space-3) var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      background: var(--surface-warm);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--fg-2);
+      flex-shrink: 0;
+    }
+    .user-meta { min-width: 0; }
+    .user-name { font-size: var(--text-sm); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-plan { font-size: var(--text-xs); color: var(--muted); }
+
+    /* Shell main */
+    .shell {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 15;
+      min-height: 52px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: var(--space-3); min-width: 0; }
+    .page-title {
+      margin: 0;
+      font-size: var(--text-lg);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      color: var(--fg);
+    }
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--success);
+      border: 1px solid color-mix(in oklab, var(--success) 35%, var(--border));
+      background: color-mix(in oklab, var(--success) 10%, transparent);
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton-block,
+      .btn .spin,
+      .live-dot { animation: none !important; }
+      * { transition: none !important; }
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-shrink: 0;
+    }
+    .search {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0 var(--space-3);
+      min-width: 220px;
+      height: 36px;
+    }
+    .search:focus-within {
+      border-color: var(--accent);
+    }
+    .search svg { width: 14px; height: 14px; color: var(--muted); flex-shrink: 0; }
+    .search input {
+      border: 0;
+      background: transparent;
+      width: 100%;
+      min-width: 0;
+      color: var(--fg);
+      font-size: var(--text-sm);
+      outline: none;
+    }
+    .search input:focus-visible { outline: none; box-shadow: none; }
+    .search:focus-within { box-shadow: var(--focus-ring); }
+    .search input::placeholder { color: var(--muted); }
+    .search kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      background: var(--bg);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      height: 36px;
+      padding: 0 var(--space-4);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      border: 1px solid var(--border);
+      transition:
+        background var(--motion-fast) var(--ease-standard),
+        border-color var(--motion-fast) var(--ease-standard),
+        color var(--motion-fast) var(--ease-standard);
+      white-space: nowrap;
+      min-width: 36px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--accent-on);
+      border-color: var(--accent);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { background: var(--accent-active); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--fg);
+    }
+    .btn-secondary:hover { background: var(--surface-warm); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--fg-2);
+      border-color: transparent;
+    }
+    .btn-ghost:hover { background: var(--surface); color: var(--fg); border-color: var(--border); }
+    .btn[disabled], .btn.is-loading {
+      opacity: 0.55;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn .spin {
+      width: 14px;
+      height: 14px;
+      border: 2px solid color-mix(in oklab, currentColor 30%, transparent);
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--text-xs);
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .status-dot.warn { background: var(--warn); }
+    .status-dot.err { background: var(--danger); }
+
+    /* Main scroll */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-4) var(--space-5) var(--space-6);
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* Banner */
+    .banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-3);
+      border: 1px solid color-mix(in oklab, var(--danger) 40%, var(--border));
+      background: color-mix(in oklab, var(--danger) 10%, var(--surface));
+      color: var(--fg);
+      font-size: var(--text-sm);
+    }
+    .banner.is-visible { display: flex; }
+    .banner strong { color: var(--danger); font-weight: 600; }
+    .banner .actions { display: flex; gap: var(--space-2); flex-shrink: 0; flex-wrap: wrap; }
+
+    /* Ticker */
+    .ticker {
+      display: flex;
+      gap: var(--space-5);
+      overflow-x: auto;
+      padding: var(--space-2) 0;
+      margin: 0 0 var(--space-4);
+      border-bottom: 1px solid var(--border);
+      scrollbar-width: thin;
+    }
+    .ticker-item {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-2);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      flex-shrink: 0;
+    }
+    .ticker-sym {
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .ticker-px { color: var(--fg); font-weight: 500; font-variant-numeric: tabular-nums; }
+    .ticker-chg.up { color: var(--success); }
+    .ticker-chg.down { color: var(--danger); }
+
+    /* KPI */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-bottom: var(--space-3);
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
+    .kpi {
+      background: var(--surface);
+      border: 0;
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 104px;
+      min-width: 0;
+    }
+    .kpi + .kpi { box-shadow: inset 1px 0 0 var(--border); }
+    .kpi-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-family: var(--font-body);
+    }
+    .kpi-value {
+      font-family: var(--font-mono);
+      font-size: clamp(22px, 2.2vw, 28px);
+      font-weight: 600;
+      line-height: var(--leading-tight);
+      letter-spacing: -0.02em;
+      color: var(--fg);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+    .kpi-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-meta .up { color: var(--success); }
+    .kpi-meta .down { color: var(--danger); }
+    .kpi-meta .flat { color: var(--muted); }
+    .kpi-hint { font-size: var(--text-xs); color: var(--muted); font-family: var(--font-body); }
+
+    /* Grid rows */
+    .row {
+      display: grid;
+      gap: 0;
+      margin-bottom: 0;
+      border: 1px solid var(--border);
+      border-top: 0;
+      background: var(--border);
+    }
+    .row-main { grid-template-columns: 1.35fr 1fr; }
+    .row-bottom { grid-template-columns: 1.25fr 0.9fr 0.95fr; border-top: 0; }
+    .row > .panel { min-width: 0; }
+
+    .panel {
+      background: var(--surface);
+      border: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .row-main > .panel + .panel,
+    .row-bottom > .panel + .panel {
+      box-shadow: inset 1px 0 0 var(--border);
+    }
+    .panel[data-od-id="panel-ai"] {
+      background: var(--surface);
+      border-top: 2px solid var(--accent);
+    }
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding: 10px var(--space-4);
+      border-bottom: 1px solid var(--border);
+      min-height: 44px;
+      background: color-mix(in oklab, var(--bg) 40%, var(--surface));
+    }
+    .panel-title {
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: 600;
+      color: var(--fg);
+      letter-spacing: 0;
+      min-width: 0;
+    }
+    .panel-sub {
+      font-size: var(--text-xs);
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: var(--space-2);
+    }
+    .panel-body { padding: var(--space-4); flex: 1; min-height: 0; }
+    .panel-body.tight { padding: 0; }
+    .panel-tools { display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0; }
+
+    .seg {
+      display: inline-flex;
+      border: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .seg button {
+      height: 28px;
+      padding: 0 10px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--muted);
+      border: 0;
+      border-right: 1px solid var(--border);
+      transition: color var(--motion-fast) var(--ease-standard), background var(--motion-fast) var(--ease-standard);
+    }
+    .seg button:last-child { border-right: 0; }
+    .seg button:hover { color: var(--fg); background: var(--surface-warm); }
+    .seg button.active {
+      color: var(--fg);
+      background: var(--surface-warm);
+      font-weight: 600;
+    }
+    .seg button.active:focus-visible {
+      outline-offset: -2px;
+    }
+
+    /* AI card */
+    .ai-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-4);
+      height: 100%;
+    }
+    .ai-main { display: flex; flex-direction: column; gap: var(--space-3); min-width: 0; }
+    .ai-badges { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 650;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding: 5px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      font-family: var(--font-body);
+    }
+    .badge.bull {
+      color: var(--success);
+      border-color: color-mix(in oklab, var(--success) 42%, var(--border));
+      background: linear-gradient(180deg, color-mix(in oklab, var(--success) 16%, transparent), color-mix(in oklab, var(--success) 6%, transparent));
+      box-shadow: 0 0 18px color-mix(in oklab, var(--success) 10%, transparent);
+    }
+    .badge.bear {
+      color: var(--danger);
+      border-color: color-mix(in oklab, var(--danger) 42%, var(--border));
+      background: linear-gradient(180deg, color-mix(in oklab, var(--danger) 16%, transparent), color-mix(in oklab, var(--danger) 6%, transparent));
+    }
+    .badge.wait {
+      color: var(--warn);
+      border-color: color-mix(in oklab, var(--warn) 42%, var(--border));
+      background: linear-gradient(180deg, color-mix(in oklab, var(--warn) 16%, transparent), color-mix(in oklab, var(--warn) 6%, transparent));
+    }
+    .badge.risk-med { color: var(--warn); }
+    .badge.neutral { color: var(--muted); }
+
+    .conf-block { display: flex; align-items: baseline; gap: var(--space-3); }
+    .conf-num {
+      font-family: var(--font-mono);
+      font-size: 44px;
+      font-weight: 650;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      background: linear-gradient(180deg, var(--fg) 20%, color-mix(in oklab, var(--success) 55%, var(--fg)));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .conf-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .conf-bar {
+      height: 5px;
+      background: color-mix(in oklab, var(--border-soft) 80%, var(--bg));
+      margin-top: var(--space-2);
+      max-width: 220px;
+      overflow: hidden;
+      border-radius: var(--radius-pill);
+    }
+    .conf-bar > i {
+      display: block;
+      height: 100%;
+      width: 78%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, color-mix(in oklab, var(--success) 70%, var(--accent)), var(--success));
+      box-shadow: 0 0 12px color-mix(in oklab, var(--success) 40%, transparent);
+    }
+
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+      margin-top: var(--space-1);
+    }
+    .level {
+      background: color-mix(in oklab, var(--bg) 70%, var(--surface));
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      box-shadow: var(--panel-shine);
+    }
+    .level dt {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin: 0 0 4px;
+    }
+    .level dd {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: var(--text-base);
+      font-weight: 500;
+    }
+    .level dd.entry { color: var(--accent); }
+    .level dd.sl { color: var(--danger); }
+    .level dd.tp { color: var(--success); }
+
+    .reasons {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .reasons li {
+      display: flex;
+      gap: var(--space-2);
+      align-items: flex-start;
+      font-size: var(--text-sm);
+      color: var(--fg-2);
+      line-height: 1.35;
+    }
+    .reasons li .mark {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      margin-top: 2px;
+      color: var(--success);
+    }
+    .ai-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      margin-top: auto;
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border-soft);
+      font-size: var(--text-xs);
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+
+    .evidence {
+      width: 212px;
+      border-left: 1px solid var(--border-soft);
+      padding-left: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      background: linear-gradient(180deg, color-mix(in oklab, var(--accent) 5%, transparent), transparent 40%);
+      margin: calc(var(--space-4) * -1) calc(var(--space-4) * -1) calc(var(--space-4) * -1) 0;
+      padding: var(--space-4);
+      border-left: 1px solid var(--border-soft);
+    }
+    .evidence h4 {
+      margin: 0;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 650;
+    }
+    .ev-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2px var(--space-2);
+      font-size: var(--text-xs);
+      padding: 8px;
+      border-radius: var(--radius-sm);
+      background: color-mix(in oklab, var(--bg) 40%, transparent);
+      border: 1px solid transparent;
+      transition: border-color var(--motion-fast) var(--ease-standard);
+    }
+    .ev-item:hover { border-color: var(--border); }
+    .ev-src { color: var(--fg-2); grid-column: 1 / -1; font-weight: 500; }
+    .ev-sig { color: var(--muted); font-family: var(--font-mono); }
+    .ev-w { color: var(--meta); font-family: var(--font-mono); text-align: right; font-weight: 600; }
+    .ev-bar {
+      grid-column: 1 / -1;
+      height: 3px;
+      background: var(--border-soft);
+      margin-top: 4px;
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+    }
+    .ev-bar > i {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--meta), color-mix(in oklab, var(--accent) 70%, white 10%));
+    }
+
+    /* Chart */
+    .chart-wrap {
+      position: relative;
+      height: 280px;
+      border-radius: var(--radius-md);
+      background:
+        radial-gradient(80% 70% at 50% 0%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 70%),
+        color-mix(in oklab, var(--bg) 55%, var(--surface));
+      border: 1px solid var(--border-soft);
+      padding: 4px;
+    }
+    .chart-wrap svg { width: 100%; height: 100%; display: block; }
+    .chart-legend {
+      display: flex;
+      gap: var(--space-4);
+      font-size: var(--text-xs);
+      color: var(--muted);
+      margin-bottom: var(--space-3);
+    }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .swatch {
+      width: 14px;
+      height: 2px;
+      display: inline-block;
+      border-radius: var(--radius-pill);
+    }
+    .swatch.price { background: var(--accent); box-shadow: 0 0 8px color-mix(in oklab, var(--accent) 50%, transparent); }
+    .swatch.ma { background: var(--warn); }
+    .swatch.band { background: color-mix(in oklab, var(--accent) 35%, transparent); height: 8px; width: 12px; border-radius: 2px; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--text-sm);
+    }
+    table.data th,
+    table.data td {
+      text-align: left;
+      padding: 11px var(--space-4);
+      border-bottom: 1px solid var(--border-soft);
+      white-space: nowrap;
+    }
+    table.data th {
+      font-size: 10px;
+      font-weight: 650;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+      position: sticky;
+      top: 0;
+    }
+    table.data td {
+      font-family: var(--font-mono);
+      color: var(--fg-2);
+      font-variant-numeric: tabular-nums;
+      font-size: 12.5px;
+    }
+    table.data td.sym { font-family: var(--font-body); font-weight: 600; color: var(--fg); }
+    table.data tr:hover td { background: color-mix(in oklab, var(--surface-warm) 80%, var(--accent) 8%); }
+    table.data tr:last-child td { border-bottom: 0; }
+    .dir-up { color: var(--success); }
+    .dir-down { color: var(--danger); }
+    .dir-wait { color: var(--warn); }
+    .conf-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .conf-mini .bar {
+      width: 48px;
+      height: 3px;
+      background: var(--border);
+      overflow: hidden;
+    }
+    .conf-mini .bar > i { display: block; height: 100%; background: var(--accent); }
+
+    /* Sentiment gauge */
+    .sent-row {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .gauge-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .gauge-track {
+      height: 10px;
+      border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--danger), var(--warn), var(--success));
+      position: relative;
+      opacity: 0.9;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
+    }
+    .gauge-thumb {
+      position: absolute;
+      top: 50%;
+      width: 4px;
+      height: 18px;
+      border-radius: var(--radius-pill);
+      background: var(--fg);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 0 3px var(--surface), 0 0 16px color-mix(in oklab, var(--fg) 35%, transparent);
+    }
+    .sent-score {
+      font-family: var(--font-mono);
+      font-size: 34px;
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      color: var(--success);
+      text-shadow: 0 0 28px color-mix(in oklab, var(--success) 25%, transparent);
+    }
+    .sent-desc { font-size: var(--text-sm); color: var(--fg-2); margin: 0; }
+    .sent-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-2);
+    }
+    .sent-stat {
+      background: color-mix(in oklab, var(--bg) 55%, var(--surface));
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      box-shadow: var(--panel-shine);
+    }
+    .sent-stat dt { margin: 0 0 4px; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .sent-stat dd { margin: 0; font-family: var(--font-mono); font-size: var(--text-base); font-weight: 500; }
+
+    /* News */
+    .news-list { display: flex; flex-direction: column; }
+    .news-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2px var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-soft);
+      transition: background var(--motion-fast) var(--ease-standard);
+      border-left: 2px solid transparent;
+    }
+    .news-item:last-child { border-bottom: 0; }
+    .news-item:hover {
+      background: color-mix(in oklab, var(--surface-warm) 85%, var(--accent) 8%);
+      border-left-color: var(--accent);
+    }
+    .news-time {
+      grid-row: 1 / 3;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--muted);
+      padding-top: 2px;
+      min-width: 42px;
+    }
+    .news-title {
+      font-size: var(--text-sm);
+      color: var(--fg);
+      font-weight: 500;
+      line-height: 1.35;
+      margin: 0;
+    }
+    .news-meta {
+      font-size: var(--text-xs);
+      color: var(--muted);
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+    }
+    .tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      color: var(--fg-2);
+      font-weight: 600;
+    }
+    .tag.pos {
+      color: var(--success);
+      border-color: color-mix(in oklab, var(--success) 35%, var(--border));
+      background: color-mix(in oklab, var(--success) 8%, transparent);
+    }
+    .tag.neg {
+      color: var(--danger);
+      border-color: color-mix(in oklab, var(--danger) 35%, var(--border));
+      background: color-mix(in oklab, var(--danger) 8%, transparent);
+    }
+
+    /* State shells */
+    .state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: var(--space-3);
+      padding: var(--space-8) var(--space-4);
+      min-height: 180px;
+      color: var(--fg-2);
+    }
+    .state.is-active { display: flex; }
+    .state h3 {
+      margin: 0;
+      font-size: var(--text-base);
+      font-weight: 600;
+      color: var(--fg);
+    }
+    .state p {
+      margin: 0;
+      font-size: var(--text-sm);
+      color: var(--muted);
+      max-width: 280px;
+    }
+    .state-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .state-icon.err { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 40%, var(--border)); }
+    .skeleton-block {
+      background: linear-gradient(90deg, var(--surface-warm) 0%, var(--border-soft) 50%, var(--surface-warm) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s linear infinite;
+      height: 12px;
+      margin-bottom: var(--space-2);
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .skeleton-block { animation: none; background: var(--surface-warm); }
+      @keyframes spin { to { transform: none; } }
+    }
+
+    .view-populated { display: block; }
+    .view-loading, .view-empty, .view-error { display: none; }
+    [data-view="loading"] .view-populated,
+    [data-view="empty"] .view-populated,
+    [data-view="error"] .view-populated { display: none; }
+    [data-view="loading"] .view-loading { display: block; }
+    [data-view="empty"] .view-empty { display: flex; }
+    [data-view="error"] .view-error { display: flex; }
+
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+    .filter-bar label {
+      font-size: var(--text-xs);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .field {
+      height: 32px;
+      background: color-mix(in oklab, var(--surface) 88%, transparent);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0 var(--space-3);
+      font-size: var(--text-sm);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      transition: border-color var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard);
+    }
+    .field:focus { border-color: color-mix(in oklab, var(--accent) 50%, var(--border)); box-shadow: var(--focus-ring); outline: none; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+    [aria-live] { /* live region exists in DOM */ }
+
+    .toast-host {
+      position: fixed;
+      right: var(--space-4);
+      bottom: var(--space-4);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      background: color-mix(in oklab, var(--surface) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--fg-2);
+      box-shadow: var(--elev-raised);
+      min-width: 240px;
+      max-width: 360px;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-3);
+    }
+    .toast.ok { border-color: color-mix(in oklab, var(--success) 40%, var(--border)); box-shadow: 0 12px 40px color-mix(in oklab, var(--success) 12%, transparent); }
+    .toast.err { border-color: color-mix(in oklab, var(--danger) 40%, var(--border)); }
+
+    .disclaimer {
+      margin-top: var(--space-5);
+      font-size: var(--text-xs);
+      color: var(--muted);
+      border-top: 1px solid var(--border-soft);
+      padding-top: var(--space-4);
+      letter-spacing: 0.01em;
+    }
+
+    /* Tweaks */
+    .tweaks {
+      position: fixed;
+      left: var(--space-3);
+      bottom: var(--space-3);
+      z-index: 40;
+      background: color-mix(in oklab, var(--surface) 94%, transparent);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3);
+      width: 200px;
+      font-size: var(--text-xs);
+      box-shadow: var(--elev-raised);
+    }
+    .tweaks summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--fg);
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tweaks summary::-webkit-details-marker { display: none; }
+    .tweaks[open] { width: 220px; }
+    .tweaks .row-t {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: var(--space-3);
+    }
+    .tweaks label { color: var(--muted); }
+    .tweaks select, .tweaks input[type="range"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--fg);
+      height: 28px;
+      padding: 0 6px;
+      font-size: var(--text-xs);
+    }
+
+    @media (max-width: 1200px) {
+      .row-main { grid-template-columns: 1fr; }
+      .row-bottom { grid-template-columns: 1fr 1fr; }
+      .evidence { width: 100%; border-left: 0; border-top: 1px solid var(--border-soft); padding-left: 0; padding-top: var(--space-4); }
+      .ai-card { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 960px) {
+      body { grid-template-columns: 1fr; }
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: min(280px, 86vw);
+        transform: translateX(-100%);
+        transition: transform var(--motion-base) var(--ease-standard);
+        z-index: 30;
+      }
+      body.nav-open .sidebar { transform: translateX(0); }
+      .nav-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 25;
+      }
+      body.nav-open .nav-backdrop { display: block; }
+      .menu-btn { display: inline-flex !important; }
+      .kpis { grid-template-columns: repeat(2, 1fr); }
+      .row-bottom { grid-template-columns: 1fr; }
+      .search { min-width: 140px; }
+      .search kbd { display: none; }
+      .main { padding: var(--space-4); }
+      .topbar { padding: var(--space-3) var(--space-4); }
+    }
+    @media (max-width: 560px) {
+      .kpis { grid-template-columns: 1fr; }
+      .levels { grid-template-columns: 1fr; }
+      .topbar-right .btn-label { display: none; }
+    }
+    .menu-btn { display: none; }
+  </style>
+</head>
+<body data-view="populated">
+  <div class="nav-backdrop" id="nav-backdrop" data-od-id="nav-backdrop" hidden></div>
+
+  <aside class="sidebar" data-od-id="sidebar" aria-label="主导航">
+    <div class="brand" data-od-id="brand">
+      <div class="brand-mark" aria-hidden="true">AX</div>
+      <div>
+        <div class="brand-text">AlphaX</div>
+        <div class="brand-sub">智能投资分析</div>
+      </div>
+    </div>
+    <nav class="nav" data-od-id="nav">
+      <a href="#" class="active" data-nav="overview" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+        市场总览
+      </a>
+      <a href="#" data-nav="market">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 4-6"/></svg>
+        实时行情
+      </a>
+      <a href="#" data-nav="analysis">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        AI 分析
+      </a>
+      <a href="#" data-nav="signals">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+        AI 信号
+      </a>
+      <a href="#" data-nav="forecast">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+        概率预测
+      </a>
+      <span class="nav-group">工作区</span>
+      <a href="#" data-nav="news">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 5h12v14H4zM16 9h4v10H8"/><path d="M7 9h6M7 13h6"/></svg>
+        新闻摘要
+      </a>
+      <a href="#" data-nav="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M5 6h14v9H8l-3 3V6z"/></svg>
+        AI 对话
+      </a>
+      <a href="#" data-nav="alerts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M12 3a6 6 0 016 6c0 7 2 7 2 7H4s2 0 2-7a6 6 0 016-6zM10 20h4"/></svg>
+        价格告警
+      </a>
+      <a href="#" data-nav="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M6.3 6.3l1.4 1.4M16.3 16.3l1.4 1.4M17.7 6.3l-1.4 1.4M7.7 16.3l-1.4 1.4"/></svg>
+        设置
+      </a>
+    </nav>
+    <div class="sidebar-foot" data-od-id="user-card">
+      <div class="avatar" aria-hidden="true">王</div>
+      <div class="user-meta">
+        <div class="user-name">Guest User</div>
+        <div class="user-plan">Pro · 席位 1/1</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="shell">
+    <header class="topbar" data-od-id="topbar">
+      <div class="topbar-left">
+        <button type="button" class="btn btn-ghost menu-btn" id="menu-btn" aria-label="打开导航" aria-controls="sidebar" aria-expanded="false" data-od-id="menu-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <h1 class="page-title" data-od-id="page-title">市场总览</h1>
+        <span class="live-pill" data-od-id="live-pill" title="行情与 AI 分析实时推送">
+          <span class="live-dot" aria-hidden="true"></span>
+          LIVE
+        </span>
+      </div>
+      <div class="topbar-right">
+        <form class="search" role="search" data-od-id="search" id="search-form">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/></svg>
+          <label class="sr-only" for="q">搜索品种或信号</label>
+          <input id="q" name="q" type="search" placeholder="搜索 XAUUSD、信号…" autocomplete="off" />
+          <kbd>/</kbd>
+        </form>
+        <div class="status-chip" data-od-id="feed-status" title="数据源状态">
+          <span class="status-dot" id="feed-dot" aria-hidden="true"></span>
+          <span id="feed-label">行情正常</span>
+        </div>
+        <button type="button" class="btn btn-secondary" id="btn-refresh" data-od-id="btn-refresh" aria-label="刷新分析">
+          <span class="btn-label">刷新</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-chat" data-od-id="btn-chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 6h14v9H8l-3 3V6z"/></svg>
+          <span class="btn-label">问 AI</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main" data-od-id="main" id="main">
+      <div class="banner" id="feed-banner" data-od-id="feed-banner" role="alert">
+        <div><strong>行情中断</strong> — 主源超时，已切换备用源。价格可能延迟最多 15 秒。</div>
+        <div class="actions">
+          <button type="button" class="btn btn-secondary" id="btn-retry-feed">重试连接</button>
+          <button type="button" class="btn btn-ghost" id="btn-dismiss-banner" aria-label="关闭提示">关闭</button>
+        </div>
+      </div>
+
+      <div class="filter-bar" data-od-id="filters">
+        <label for="tf">周期</label>
+        <select id="tf" class="field" aria-label="图表周期">
+          <option value="15m">15m</option>
+          <option value="1H" selected>1H</option>
+          <option value="4H">4H</option>
+          <option value="1D">Daily</option>
+        </select>
+        <label for="sym">品种</label>
+        <select id="sym" class="field" aria-label="交易品种">
+          <option value="XAUUSD" selected>XAUUSD</option>
+          <option value="XAGUSD">XAGUSD</option>
+          <option value="DXY">DXY</option>
+          <option value="BTCUSD">BTCUSD</option>
+        </select>
+        <span style="flex:1"></span>
+        <span class="status-chip" id="updated-at" data-od-id="updated-at">更新于 16:42:08 UTC+8</span>
+      </div>
+
+      <div class="ticker" data-od-id="ticker" aria-label="市场报价条">
+        <div class="ticker-item"><span class="ticker-sym">XAUUSD</span><span class="ticker-px" data-px="xau">2,384.60</span><span class="ticker-chg up">▲ +0.42%</span></div>
+        <div class="ticker-item"><span class="ticker-sym">XAGUSD</span><span class="ticker-px">28.74</span><span class="ticker-chg down">▼ −0.18%</span></div>
+        <div class="ticker-item"><span class="ticker-sym">DXY</span><span class="ticker-px">104.28</span><span class="ticker-chg down">▼ −0.11%</span></div>
+        <div class="ticker-item"><span class="ticker-sym">US10Y</span><span class="ticker-px">4.21%</span><span class="ticker-chg up">▲ +2.0bp</span></div>
+        <div class="ticker-item"><span class="ticker-sym">BTC</span><span class="ticker-px">67,420</span><span class="ticker-chg up">▲ +1.24%</span></div>
+        <div class="ticker-item"><span class="ticker-sym">VIX</span><span class="ticker-px">13.8</span><span class="ticker-chg down">▼ −0.6</span></div>
+        <div class="ticker-item"><span class="ticker-sym">NAS100</span><span class="ticker-px">19,842</span><span class="ticker-chg up">▲ +0.35%</span></div>
+      </div>
+
+      <section class="kpis" data-od-id="kpis" aria-label="关键指标">
+        <article class="kpi" data-od-id="kpi-price">
+          <div class="kpi-label">XAUUSD 现价</div>
+          <div class="kpi-value" id="kpi-price">2,384.60</div>
+          <div class="kpi-meta"><span class="up" id="kpi-price-chg">▲ +9.90 · +0.42%</span></div>
+          <div class="kpi-hint">较前收 2,374.70</div>
+        </article>
+        <article class="kpi" data-od-id="kpi-conf">
+          <div class="kpi-label">AI 置信度</div>
+          <div class="kpi-value" id="kpi-conf">78%</div>
+          <div class="kpi-meta"><span class="up">▲ +6pp 较上小时</span></div>
+          <div class="kpi-hint">多因子融合 · 4H 主周期</div>
+        </article>
+        <article class="kpi" data-od-id="kpi-risk">
+          <div class="kpi-label">风险等级</div>
+          <div class="kpi-value" style="color: var(--warn)">中</div>
+          <div class="kpi-meta"><span class="flat">ATR(14) 18.4 · 波动适中</span></div>
+          <div class="kpi-hint">建议仓位 ≤ 账户 1.5%</div>
+        </article>
+        <article class="kpi" data-od-id="kpi-sent">
+          <div class="kpi-label">情绪指数</div>
+          <div class="kpi-value" style="color: var(--success)">62</div>
+          <div class="kpi-meta"><span class="up">偏多 · 机构净流入</span></div>
+          <div class="kpi-hint">新闻 + COT + ETF 合成</div>
+        </article>
+      </section>
+
+      <div class="row row-main">
+        <section class="panel" data-od-id="panel-ai" aria-labelledby="ai-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="ai-title">AI 市场分析 <span class="panel-sub">XAUUSD · 可解释决策</span></h2>
+            <div class="panel-tools">
+              <div class="seg" role="group" aria-label="分析视图">
+                <button type="button" class="active" data-ai-tab="summary">摘要</button>
+                <button type="button" data-ai-tab="evidence">证据链</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body" id="ai-panel-body">
+            <div class="view-populated">
+              <div class="ai-card" data-od-id="ai-analysis-card">
+                <div class="ai-main">
+                  <div class="ai-badges">
+                    <span class="badge bull" data-od-id="trend-badge">↑ 看涨 Bullish</span>
+                    <span class="badge wait" data-od-id="action-badge">→ 等待回踩 Wait</span>
+                    <span class="badge risk-med" data-od-id="risk-badge">风险 · 中</span>
+                  </div>
+                  <div>
+                    <div class="conf-block">
+                      <div class="conf-num" id="conf-num">78%</div>
+                      <div class="conf-label">置信度</div>
+                    </div>
+                    <div class="conf-bar" aria-hidden="true"><i id="conf-bar"></i></div>
+                  </div>
+                  <dl class="levels" data-od-id="trade-levels">
+                    <div class="level"><dt>入场 Entry</dt><dd class="entry" id="lv-entry">2,378.0 – 2,381.5</dd></div>
+                    <div class="level"><dt>止损 SL</dt><dd class="sl" id="lv-sl">2,364.0</dd></div>
+                    <div class="level"><dt>止盈 TP</dt><dd class="tp" id="lv-tp">2,412.0 / 2,428.0</dd></div>
+                  </dl>
+                  <ul class="reasons" data-od-id="reasons">
+                    <li>
+                      <svg class="mark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4"/></svg>
+                      4H 站稳 EMA20/50，结构仍为更高低点
+                    </li>
+                    <li>
+                      <svg class="mark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4"/></svg>
+                      DXY 回落 + 美债收益率企稳，美元压力缓解
+                    </li>
+                    <li>
+                      <svg class="mark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4"/></svg>
+                      GLD ETF 连续 3 日净流入，Smart Money 偏多
+                    </li>
+                    <li>
+                      <svg class="mark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8l3.5 3.5L13 4"/></svg>
+                      短线 RSI 超买，优先等回踩再入场，而非追高
+                    </li>
+                  </ul>
+                  <div class="ai-foot">
+                    <span>模型 · fusion-v2.1</span>
+                    <span id="ai-updated">更新 16:41:52</span>
+                  </div>
+                </div>
+                <aside class="evidence" data-od-id="evidence-chain" aria-label="证据权重">
+                  <h4>证据链权重</h4>
+                  <div class="ev-item">
+                    <span class="ev-src">技术结构 · 4H</span>
+                    <span class="ev-sig">HH/HL</span>
+                    <span class="ev-w">0.32</span>
+                    <div class="ev-bar"><i style="width:32%"></i></div>
+                  </div>
+                  <div class="ev-item">
+                    <span class="ev-src">宏观 · DXY / US10Y</span>
+                    <span class="ev-sig">美元弱</span>
+                    <span class="ev-w">0.24</span>
+                    <div class="ev-bar"><i style="width:24%"></i></div>
+                  </div>
+                  <div class="ev-item">
+                    <span class="ev-src">资金 · GLD ETF</span>
+                    <span class="ev-sig">净流入</span>
+                    <span class="ev-w">0.22</span>
+                    <div class="ev-bar"><i style="width:22%"></i></div>
+                  </div>
+                  <div class="ev-item">
+                    <span class="ev-src">情绪 · 新闻 NLP</span>
+                    <span class="ev-sig">偏多</span>
+                    <span class="ev-w">0.14</span>
+                    <div class="ev-bar"><i style="width:14%"></i></div>
+                  </div>
+                  <div class="ev-item">
+                    <span class="ev-src">动量 · RSI/MACD</span>
+                    <span class="ev-sig">过热</span>
+                    <span class="ev-w">0.08</span>
+                    <div class="ev-bar"><i style="width:8%"></i></div>
+                  </div>
+                </aside>
+              </div>
+            </div>
+            <div class="view-loading" aria-busy="true" aria-live="polite">
+              <div class="skeleton-block" style="width:40%;height:16px"></div>
+              <div class="skeleton-block" style="width:28%;height:36px;margin:16px 0"></div>
+              <div class="skeleton-block" style="width:100%"></div>
+              <div class="skeleton-block" style="width:92%"></div>
+              <div class="skeleton-block" style="width:86%"></div>
+              <p class="sr-only">正在加载 AI 分析…</p>
+            </div>
+            <div class="state view-empty" data-od-id="ai-empty">
+              <div class="state-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>
+              </div>
+              <h3>暂无 AI 分析</h3>
+              <p>当前品种在所选周期尚无可用结论。切换周期或稍后重试。</p>
+              <button type="button" class="btn btn-primary" data-action="reload-ai">生成分析</button>
+            </div>
+            <div class="state view-error" data-od-id="ai-error" role="alert">
+              <div class="state-icon err" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+              </div>
+              <h3>分析服务暂时不可用</h3>
+              <p id="ai-error-msg">上游超时（错误 ID: ax-7f2c）。已保留上次有效结论的缓存不可用。</p>
+              <button type="button" class="btn btn-primary" id="btn-retry-ai">立即重试</button>
+              <span class="kpi-hint" id="retry-meta" hidden></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-od-id="panel-chart" aria-labelledby="chart-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="chart-title">价格走势 <span class="panel-sub" id="chart-sub">XAUUSD · 1H</span></h2>
+            <div class="panel-tools">
+              <div class="seg" role="group" aria-label="主图指标">
+                <button type="button" class="active" data-ind="price">价格</button>
+                <button type="button" data-ind="ma">MA</button>
+                <button type="button" data-ind="band">通道</button>
+              </div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="chart-legend">
+              <span><i class="swatch price"></i>收盘</span>
+              <span><i class="swatch ma"></i>EMA20</span>
+              <span><i class="swatch band"></i>波动带</span>
+            </div>
+            <div class="chart-wrap" data-od-id="price-chart">
+              <svg viewBox="0 0 640 280" preserveAspectRatio="none" role="img" aria-label="XAUUSD 近 24 根 K 线收盘走势示意图">
+                <defs>
+                  <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.34"/>
+                    <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="priceStroke" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#7dd3fc"/>
+                    <stop offset="100%" stop-color="#38bdf8"/>
+                  </linearGradient>
+                  <filter id="priceGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="2.2" result="b"/>
+                    <feMerge>
+                      <feMergeNode in="b"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <!-- grid -->
+                <g stroke="#263246" stroke-width="1">
+                  <line x1="48" y1="24" x2="48" y2="240"/>
+                  <line x1="48" y1="240" x2="620" y2="240"/>
+                  <line x1="48" y1="80" x2="620" y2="80" stroke-dasharray="2 4" opacity="0.55"/>
+                  <line x1="48" y1="140" x2="620" y2="140" stroke-dasharray="2 4" opacity="0.55"/>
+                  <line x1="48" y1="200" x2="620" y2="200" stroke-dasharray="2 4" opacity="0.55"/>
+                </g>
+                <g fill="#8492a6" font-family="Roboto Mono, monospace" font-size="10">
+                  <text x="8" y="84">2,400</text>
+                  <text x="8" y="144">2,380</text>
+                  <text x="8" y="204">2,360</text>
+                  <text x="48" y="258">00:00</text>
+                  <text x="200" y="258">06:00</text>
+                  <text x="360" y="258">12:00</text>
+                  <text x="520" y="258">18:00</text>
+                </g>
+                <!-- band -->
+                <path id="band-path" d="M48,170 C120,155 180,130 240,145 C300,160 360,100 420,90 C480,80 540,95 620,70 L620,130 C540,150 480,140 420,145 C360,150 300,200 240,190 C180,180 120,200 48,210 Z" fill="url(#areaFill)" opacity="0.55"/>
+                <!-- MA -->
+                <polyline id="ma-line" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" points="48,190 90,185 130,175 170,168 210,172 250,160 290,150 330,142 370,128 410,118 450,110 490,105 530,98 570,92 620,85" opacity="0.9"/>
+                <!-- price -->
+                <polyline id="price-line" fill="none" stroke="url(#priceStroke)" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round" filter="url(#priceGlow)" points="48,200 90,188 130,170 170,178 210,165 250,148 290,155 330,130 370,118 410,125 450,100 490,95 530,88 570,78 620,62"/>
+                <circle cx="620" cy="62" r="3.5" fill="#38bdf8" stroke="#070b12" stroke-width="1.5"/>
+                <!-- entry / sl / tp guides -->
+                <g stroke-dasharray="4 3" stroke-width="1">
+                  <line x1="48" y1="152" x2="620" y2="152" stroke="#38bdf8" opacity="0.55"/>
+                  <line x1="48" y1="210" x2="620" y2="210" stroke="#ef4444" opacity="0.55"/>
+                  <line x1="48" y1="48" x2="620" y2="48" stroke="#22c55e" opacity="0.45"/>
+                </g>
+                <g font-family="Roboto Mono, monospace" font-size="9" fill="#8492a6">
+                  <text x="560" y="148" fill="#38bdf8">Entry</text>
+                  <text x="575" y="206" fill="#ef4444">SL</text>
+                  <text x="575" y="44" fill="#22c55e">TP1</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="row row-bottom">
+        <section class="panel" data-od-id="panel-signals" aria-labelledby="sig-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="sig-title">近期 AI 信号</h2>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:12px" id="btn-filter-buy">仅看多</button>
+          </div>
+          <div class="panel-body tight">
+            <div class="table-wrap">
+              <table class="data" data-od-id="signals-table">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>品种</th>
+                    <th>方向</th>
+                    <th>入场</th>
+                    <th>置信度</th>
+                    <th>结果</th>
+                  </tr>
+                </thead>
+                <tbody id="signals-body">
+                  <tr data-side="buy">
+                    <td>16:20</td>
+                    <td class="sym">XAUUSD</td>
+                    <td class="dir-up">↑ 买入</td>
+                    <td>2,376.4</td>
+                    <td><span class="conf-mini">72%<span class="bar"><i style="width:72%"></i></span></span></td>
+                    <td class="dir-up">进行中</td>
+                  </tr>
+                  <tr data-side="sell">
+                    <td>14:05</td>
+                    <td class="sym">XAUUSD</td>
+                    <td class="dir-down">↓ 卖出</td>
+                    <td>2,391.2</td>
+                    <td><span class="conf-mini">61%<span class="bar"><i style="width:61%"></i></span></span></td>
+                    <td class="dir-down">止损 −0.4R</td>
+                  </tr>
+                  <tr data-side="buy">
+                    <td>11:40</td>
+                    <td class="sym">XAUUSD</td>
+                    <td class="dir-up">↑ 买入</td>
+                    <td>2,358.0</td>
+                    <td><span class="conf-mini">81%<span class="bar"><i style="width:81%"></i></span></span></td>
+                    <td class="dir-up">止盈 +1.6R</td>
+                  </tr>
+                  <tr data-side="wait">
+                    <td>09:15</td>
+                    <td class="sym">XAUUSD</td>
+                    <td class="dir-wait">· 观望</td>
+                    <td>—</td>
+                    <td><span class="conf-mini">54%<span class="bar"><i style="width:54%"></i></span></span></td>
+                    <td class="flat" style="color:var(--muted)">已过期</td>
+                  </tr>
+                  <tr data-side="buy">
+                    <td>昨日</td>
+                    <td class="sym">XAGUSD</td>
+                    <td class="dir-up">↑ 买入</td>
+                    <td>28.41</td>
+                    <td><span class="conf-mini">69%<span class="bar"><i style="width:69%"></i></span></span></td>
+                    <td class="dir-up">止盈 +1.1R</td>
+                  </tr>
+                  <tr data-side="buy" class="edge-row" hidden>
+                    <td>边缘样例</td>
+                    <td class="sym">XAUUSD-VERY-LONG-SYMBOL-NAME-FOR-EDGE</td>
+                    <td class="dir-up">↑ 买入</td>
+                    <td>999,999.999</td>
+                    <td><span class="conf-mini">100%<span class="bar"><i style="width:100%"></i></span></span></td>
+                    <td class="dir-up">极端长文案测试结果占位超长内容不会撑破布局</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="state" id="signals-empty" data-od-id="signals-empty" style="min-height:140px">
+              <div class="state-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+              </div>
+              <h3>没有匹配的信号</h3>
+              <p>调整筛选条件，或清空「仅看多」过滤器。</p>
+              <button type="button" class="btn btn-secondary" id="btn-clear-filter">清除筛选</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-od-id="panel-sentiment" aria-labelledby="sent-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="sent-title">市场情绪</h2>
+          </div>
+          <div class="panel-body">
+            <div class="sent-row">
+              <div>
+                <div class="sent-score" data-od-id="sent-score">62 <span style="font-size:14px;color:var(--muted);font-weight:500">/ 100</span></div>
+                <p class="sent-desc">偏多 — 机构资金与新闻情绪同步改善，但短线动能过热。</p>
+              </div>
+              <div>
+                <div class="gauge-label"><span>恐慌</span><span>中性</span><span>贪婪</span></div>
+                <div class="gauge-track" aria-hidden="true"><span class="gauge-thumb" style="left:62%"></span></div>
+              </div>
+              <dl class="sent-stats">
+                <div class="sent-stat"><dt>多头占比</dt><dd class="dir-up">58%</dd></div>
+                <div class="sent-stat"><dt>空头占比</dt><dd class="dir-down">27%</dd></div>
+                <div class="sent-stat"><dt>GLD 3日净流入</dt><dd class="dir-up">+$412M</dd></div>
+                <div class="sent-stat"><dt>COT 净多变化</dt><dd class="dir-up">+8.2k</dd></div>
+              </dl>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" data-od-id="panel-news" aria-labelledby="news-title">
+          <div class="panel-head">
+            <h2 class="panel-title" id="news-title">新闻摘要</h2>
+            <button type="button" class="btn btn-ghost" style="height:28px;font-size:12px" id="btn-news-more">全部</button>
+          </div>
+          <div class="panel-body tight">
+            <div class="news-list" data-od-id="news-list">
+              <article class="news-item">
+                <time class="news-time" datetime="2026-07-20T16:18:00+08:00">16:18</time>
+                <h3 class="news-title">美联储官员放缓降息预期，美元短线承压</h3>
+                <div class="news-meta"><span class="tag pos">利多金</span><span>Reuters · AI 摘要</span></div>
+              </article>
+              <article class="news-item">
+                <time class="news-time" datetime="2026-07-20T15:02:00+08:00">15:02</time>
+                <h3 class="news-title">GLD 连续第三日获净申购，ETF 持仓升至四周高位</h3>
+                <div class="news-meta"><span class="tag pos">资金</span><span>Bloomberg</span></div>
+              </article>
+              <article class="news-item">
+                <time class="news-time" datetime="2026-07-20T12:40:00+08:00">12:40</time>
+                <h3 class="news-title">中东地缘风险降温，避险溢价部分回吐</h3>
+                <div class="news-meta"><span class="tag neg">中性偏空</span><span>FT</span></div>
+              </article>
+              <article class="news-item">
+                <time class="news-time" datetime="2026-07-20T09:55:00+08:00">09:55</time>
+                <h3 class="news-title">中国央行增持黄金传闻再起，实物需求预期升温</h3>
+                <div class="news-meta"><span class="tag pos">宏观</span><span>本地编译</span></div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <p class="disclaimer" data-od-id="disclaimer">
+        免责声明：AlphaX 提供的 AI 分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。
+      </p>
+    </main>
+  </div>
+
+  <div class="toast-host" id="toast-host" aria-live="polite" data-od-id="toast-host"></div>
+  <div class="sr-only" id="status-live" role="status" aria-live="polite"></div>
+
+  <details class="tweaks" data-od-id="tweaks-panel">
+    <summary>调试面板 <span style="color:var(--muted)">▾</span></summary>
+    <div class="row-t">
+      <label for="tweak-view">主视图状态</label>
+      <select id="tweak-view">
+        <option value="populated">已填充</option>
+        <option value="loading">加载中</option>
+        <option value="empty">空状态</option>
+        <option value="error">错误</option>
+      </select>
+    </div>
+    <div class="row-t">
+      <label for="tweak-feed">行情源</label>
+      <select id="tweak-feed">
+        <option value="ok">正常</option>
+        <option value="degraded">降级</option>
+        <option value="down">中断</option>
+      </select>
+    </div>
+    <div class="row-t">
+      <label for="tweak-edge">
+        <input type="checkbox" id="tweak-edge" /> 显示边缘行
+      </label>
+    </div>
+  </details>
+
+  <script>
+    const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+      "view": "populated",
+      "feed": "ok",
+      "edge": false
+    }/*EDITMODE-END*/;
+
+    (function () {
+      const body = document.body;
+      const main = document.getElementById("main");
+      const aiBody = document.getElementById("ai-panel-body");
+      const toastHost = document.getElementById("toast-host");
+      const statusLive = document.getElementById("status-live");
+      const feedBanner = document.getElementById("feed-banner");
+      const feedDot = document.getElementById("feed-dot");
+      const feedLabel = document.getElementById("feed-label");
+      const signalsBody = document.getElementById("signals-body");
+      const signalsEmpty = document.getElementById("signals-empty");
+      const btnFilterBuy = document.getElementById("btn-filter-buy");
+      const btnClearFilter = document.getElementById("btn-clear-filter");
+      const btnRefresh = document.getElementById("btn-refresh");
+      const btnRetryAi = document.getElementById("btn-retry-ai");
+      const retryMeta = document.getElementById("retry-meta");
+      const menuBtn = document.getElementById("menu-btn");
+      const backdrop = document.getElementById("nav-backdrop");
+      const q = document.getElementById("q");
+      const tf = document.getElementById("tf");
+      const sym = document.getElementById("sym");
+      const chartSub = document.getElementById("chart-sub");
+      const updatedAt = document.getElementById("updated-at");
+      const confBar = document.getElementById("conf-bar");
+      const confNum = document.getElementById("conf-num");
+
+      let buyOnly = false;
+      let retryCount = 0;
+      let lastRetryAt = 0;
+      let loadTimer = null;
+      let loadStarted = 0;
+
+      confBar.style.width = "78%";
+
+      function toast(msg, kind) {
+        const el = document.createElement("div");
+        el.className = "toast " + (kind || "");
+        el.setAttribute("role", "status");
+        el.textContent = msg;
+        toastHost.appendChild(el);
+        const t = setTimeout(function () { el.remove(); }, 4200);
+        el.addEventListener("mouseenter", function () { clearTimeout(t); });
+        el.addEventListener("mouseleave", function () {
+          setTimeout(function () { el.remove(); }, 1200);
+        });
+      }
+
+      function announce(msg) {
+        statusLive.textContent = "";
+        requestAnimationFrame(function () { statusLive.textContent = msg; });
+      }
+
+      function setView(view) {
+        body.setAttribute("data-view", view);
+        document.getElementById("tweak-view").value = view;
+        if (view === "loading") {
+          loadStarted = Date.now();
+          announce("正在加载 AI 分析");
+          clearTimeout(loadTimer);
+          loadTimer = setTimeout(function () {
+            if (body.getAttribute("data-view") === "loading") {
+              toast("加载超过 15 秒，仍在等待分析服务…", "err");
+              announce("加载时间长于预期");
+            }
+          }, 15000);
+        } else {
+          clearTimeout(loadTimer);
+        }
+      }
+
+      function setFeed(state) {
+        document.getElementById("tweak-feed").value = state;
+        feedDot.className = "status-dot";
+        feedBanner.classList.remove("is-visible");
+        if (state === "ok") {
+          feedLabel.textContent = "行情正常";
+        } else if (state === "degraded") {
+          feedDot.classList.add("warn");
+          feedLabel.textContent = "备用源";
+          feedBanner.classList.add("is-visible");
+          feedBanner.querySelector("div").innerHTML =
+            "<strong>行情降级</strong> — 主源延迟升高，已切换备用源。价格可能延迟最多 15 秒。";
+        } else {
+          feedDot.classList.add("err");
+          feedLabel.textContent = "行情中断";
+          feedBanner.classList.add("is-visible");
+          feedBanner.querySelector("div").innerHTML =
+            "<strong>行情中断</strong> — 无法获取实时报价。请检查网络或重试连接。";
+        }
+      }
+
+      function applySignalFilter() {
+        const rows = signalsBody.querySelectorAll("tr:not(.edge-row)");
+        let visible = 0;
+        rows.forEach(function (row) {
+          const show = !buyOnly || row.getAttribute("data-side") === "buy";
+          row.hidden = !show;
+          if (show) visible++;
+        });
+        const edge = signalsBody.querySelector(".edge-row");
+        if (edge && !edge.hidden) visible++;
+        const empty = visible === 0;
+        signalsEmpty.classList.toggle("is-active", empty);
+        signalsBody.parentElement.style.display = empty ? "none" : "block";
+        btnFilterBuy.textContent = buyOnly ? "显示全部" : "仅看多";
+        btnFilterBuy.setAttribute("aria-pressed", buyOnly ? "true" : "false");
+      }
+
+      function refreshClock() {
+        const now = new Date();
+        const pad = function (n) { return String(n).padStart(2, "0"); };
+        const s =
+          pad(now.getHours()) + ":" +
+          pad(now.getMinutes()) + ":" +
+          pad(now.getSeconds()) + " UTC+8";
+        updatedAt.textContent = "更新于 " + s;
+        document.getElementById("ai-updated").textContent = "更新 " + pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+      }
+
+      function simulateRefresh() {
+        if (btnRefresh.classList.contains("is-loading")) return;
+        btnRefresh.classList.add("is-loading");
+        btnRefresh.innerHTML = '<span class="spin" aria-hidden="true"></span><span class="btn-label">刷新中</span>';
+        setView("loading");
+        announce("正在刷新");
+        setTimeout(function () {
+          btnRefresh.classList.remove("is-loading");
+          btnRefresh.innerHTML = '<span class="btn-label">刷新</span>';
+          // slight data tick
+          const base = 2384.6 + (Math.random() * 2 - 1);
+          document.getElementById("kpi-price").textContent = base.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          const conf = 74 + Math.floor(Math.random() * 8);
+          confNum.textContent = conf + "%";
+          confBar.style.width = conf + "%";
+          document.getElementById("kpi-conf").textContent = conf + "%";
+          refreshClock();
+          setView("populated");
+          toast("AI 分析已更新", "ok");
+          announce("分析已更新，置信度 " + conf + "%");
+        }, 1100);
+      }
+
+      function retryAi() {
+        retryCount += 1;
+        lastRetryAt = Date.now();
+        const delays = [0, 2000, 4000, 8000];
+        if (retryCount > 3) {
+          btnRetryAi.textContent = "联系支持";
+          retryMeta.hidden = false;
+          retryMeta.textContent = "已达重试上限 · 错误 ID: ax-7f2c";
+          toast("请联系支持并提供错误 ID: ax-7f2c", "err");
+          return;
+        }
+        const wait = delays[Math.min(retryCount, delays.length - 1)];
+        btnRetryAi.classList.add("is-loading");
+        btnRetryAi.innerHTML = '<span class="spin" aria-hidden="true"></span>重试中';
+        retryMeta.hidden = false;
+        retryMeta.textContent = wait ? ("退避 " + wait / 1000 + "s · 第 " + retryCount + " 次") : ("第 " + retryCount + " 次重试");
+        setTimeout(function () {
+          // succeed on 2nd try for demo
+          if (retryCount >= 2) {
+            btnRetryAi.classList.remove("is-loading");
+            btnRetryAi.textContent = "立即重试";
+            retryMeta.hidden = true;
+            retryCount = 0;
+            setView("populated");
+            refreshClock();
+            toast("分析已恢复", "ok");
+          } else {
+            btnRetryAi.classList.remove("is-loading");
+            btnRetryAi.textContent = "立即重试";
+            retryMeta.textContent = "上次尝试：刚刚 · 仍失败";
+            toast("重试失败，可再次尝试", "err");
+          }
+        }, Math.max(wait, 600));
+      }
+
+      // Nav
+      document.querySelectorAll(".nav a").forEach(function (link) {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          document.querySelectorAll(".nav a").forEach(function (a) {
+            a.classList.remove("active");
+            a.removeAttribute("aria-current");
+          });
+          link.classList.add("active");
+          link.setAttribute("aria-current", "page");
+          const map = {
+            overview: "市场总览",
+            market: "实时行情",
+            analysis: "AI 分析",
+            signals: "AI 信号",
+            forecast: "概率预测",
+            news: "新闻摘要",
+            chat: "AI 对话",
+            alerts: "价格告警",
+            settings: "设置"
+          };
+          const key = link.getAttribute("data-nav");
+          document.querySelector(".page-title").textContent = map[key] || "市场总览";
+          body.classList.remove("nav-open");
+          menuBtn.setAttribute("aria-expanded", "false");
+          backdrop.hidden = true;
+          if (key === "chat") toast("AI 对话抽屉将在完整应用中打开（原型）");
+        });
+      });
+
+      menuBtn.addEventListener("click", function () {
+        const open = !body.classList.contains("nav-open");
+        body.classList.toggle("nav-open", open);
+        menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        backdrop.hidden = !open;
+      });
+      backdrop.addEventListener("click", function () {
+        body.classList.remove("nav-open");
+        menuBtn.setAttribute("aria-expanded", "false");
+        backdrop.hidden = true;
+      });
+
+      // Filters
+      function syncChartLabel() {
+        chartSub.textContent = sym.value + " · " + tf.value;
+      }
+      tf.addEventListener("change", syncChartLabel);
+      sym.addEventListener("change", function () {
+        syncChartLabel();
+        toast("已切换至 " + sym.value);
+      });
+
+      document.querySelectorAll("[data-ind]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll("[data-ind]").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          const ind = btn.getAttribute("data-ind");
+          document.getElementById("ma-line").style.opacity = ind === "price" ? "0.35" : "0.95";
+          document.getElementById("band-path").style.opacity = ind === "band" ? "0.7" : "0.35";
+          document.getElementById("price-line").style.opacity = "1";
+        });
+      });
+
+      document.querySelectorAll("[data-ai-tab]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll("[data-ai-tab]").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          const tab = btn.getAttribute("data-ai-tab");
+          const ev = document.querySelector(".evidence");
+          if (ev) ev.style.display = tab === "evidence" || window.matchMedia("(min-width:1201px)").matches ? "flex" : "none";
+          if (tab === "evidence") announce("显示证据链");
+        });
+      });
+
+      btnFilterBuy.addEventListener("click", function () {
+        buyOnly = !buyOnly;
+        applySignalFilter();
+      });
+      btnClearFilter.addEventListener("click", function () {
+        buyOnly = false;
+        applySignalFilter();
+      });
+
+      btnRefresh.addEventListener("click", simulateRefresh);
+      document.querySelectorAll("[data-action='reload-ai']").forEach(function (b) {
+        b.addEventListener("click", function () {
+          setView("loading");
+          setTimeout(function () { setView("populated"); toast("分析已生成", "ok"); }, 900);
+        });
+      });
+      btnRetryAi.addEventListener("click", retryAi);
+
+      document.getElementById("btn-retry-feed").addEventListener("click", function () {
+        setFeed("ok");
+        toast("行情源已恢复", "ok");
+      });
+      document.getElementById("btn-dismiss-banner").addEventListener("click", function () {
+        feedBanner.classList.remove("is-visible");
+      });
+
+      document.getElementById("btn-chat").addEventListener("click", function () {
+        toast("快捷键 c · 打开 AI 对话（原型）");
+      });
+
+      document.getElementById("search-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const v = q.value.trim();
+        if (!v) return;
+        toast("搜索：" + v);
+      });
+
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "/" && document.activeElement !== q && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "SELECT") {
+          e.preventDefault();
+          q.focus();
+        }
+        if (e.key === "c" && document.activeElement !== q && document.activeElement.tagName !== "INPUT") {
+          document.getElementById("btn-chat").click();
+        }
+        if (e.key === "Escape") {
+          body.classList.remove("nav-open");
+          menuBtn.setAttribute("aria-expanded", "false");
+          backdrop.hidden = true;
+        }
+      });
+
+      // Tweaks
+      document.getElementById("tweak-view").addEventListener("change", function (e) {
+        if (e.target.value === "error") retryCount = 0;
+        setView(e.target.value);
+      });
+      document.getElementById("tweak-feed").addEventListener("change", function (e) {
+        setFeed(e.target.value);
+      });
+      document.getElementById("tweak-edge").addEventListener("change", function (e) {
+        const edge = signalsBody.querySelector(".edge-row");
+        if (edge) edge.hidden = !e.target.checked;
+        applySignalFilter();
+      });
+
+      // init
+      setView(TWEAK_DEFAULTS.view || "populated");
+      setFeed(TWEAK_DEFAULTS.feed || "ok");
+      if (TWEAK_DEFAULTS.edge) {
+        document.getElementById("tweak-edge").checked = true;
+        const edge = signalsBody.querySelector(".edge-row");
+        if (edge) edge.hidden = false;
+      }
+      applySignalFilter();
+      refreshClock();
+      signalsEmpty.classList.remove("is-active");
+    })();
+  </script>
+</body>
+</html>

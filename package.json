@@ -1,0 +1,20 @@
+{
+  "name": "alphax",
+  "version": "2.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @alphax/web dev",
+    "build": "pnpm --filter @alphax/web build",
+    "start": "pnpm --filter @alphax/web start",
+    "lint": "pnpm --filter @alphax/web lint",
+    "typecheck": "pnpm --filter @alphax/web typecheck",
+    "test": "pnpm --filter @alphax/web test"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
+}
