@@ -126,7 +126,7 @@ function MarketContent({ symbol }: { symbol: string }) {
       )}
 
       <p className="mt-1 border-t border-border-subtle pt-4 text-xs text-text-muted">
-        免责声明：AlphaX 提供的 AI 分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。
+        免责声明：AlphaX 提供的智能分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。
       </p>
     </div>
   );
