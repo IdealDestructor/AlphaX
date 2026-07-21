@@ -21,7 +21,7 @@ const navItems = [
     { key: "overview", label: "市场总览", icon: LayoutDashboard, href: "/" },
     { key: "market", label: "实时行情", icon: LineChart, href: "/market/XAUUSD" },
     { key: "analysis", label: "AI 分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
-    { key: "signals", label: "AI 信号", icon: Zap, href: "#" },
+    { key: "signals", label: "AI 信号", icon: Zap, href: "/signals" },
     { key: "forecast", label: "概率预测", icon: TrendingUp, href: "#" },
 ] as const;
 
