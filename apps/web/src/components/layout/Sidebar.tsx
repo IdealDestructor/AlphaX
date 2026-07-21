@@ -14,13 +14,15 @@ import {
     X,
 } from "lucide-react";
 import { useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navItems = [
-    { key: "overview", label: "市场总览", icon: LayoutDashboard, active: true },
-    { key: "market", label: "实时行情", icon: LineChart, active: false },
-    { key: "analysis", label: "AI 分析", icon: BrainCircuit, active: false },
-    { key: "signals", label: "AI 信号", icon: Zap, active: false },
-    { key: "forecast", label: "概率预测", icon: TrendingUp, active: false },
+    { key: "overview", label: "市场总览", icon: LayoutDashboard, href: "/" },
+    { key: "market", label: "实时行情", icon: LineChart, href: "/market/XAUUSD" },
+    { key: "analysis", label: "AI 分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
+    { key: "signals", label: "AI 信号", icon: Zap, href: "#" },
+    { key: "forecast", label: "概率预测", icon: TrendingUp, href: "#" },
 ] as const;
 
 const workspaceItems = [
@@ -44,6 +46,8 @@ export function Sidebar({
         if (open) document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
     }, [open, onClose]);
+
+    const pathname = usePathname();
 
     return (
         <>
@@ -81,35 +85,40 @@ export function Sidebar({
                 </div>
 
                 <nav className="flex-1 overflow-y-auto p-2">
-                    {navItems.map((item) => (
-                        <a
-                            key={item.key}
-                            href="#"
-                            aria-current={item.active ? "page" : undefined}
-                            className={cn(
-                                "flex min-h-[40px] items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm transition-colors",
-                                item.active
-                                    ? "border-accent bg-accent-muted/30 font-semibold text-text"
-                                    : "text-text-secondary hover:bg-bg-elevated hover:text-text",
-                            )}
-                        >
-                            <item.icon size={16} className={item.active ? "text-accent" : "opacity-75"} />
-                            {item.label}
-                        </a>
-                    ))}
+                    {navItems.map((item) => {
+                        const match = item.href !== "#" && (item.href === "/" ? pathname === "/" : pathname.startsWith(item.href));
+                        return (
+                            <Link
+                                key={item.key}
+                                href={item.href}
+                                onClick={item.href === "#" ? (e) => e.preventDefault() : onClose}
+                                aria-current={match ? "page" : undefined}
+                                className={cn(
+                                    "flex min-h-[40px] items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm transition-colors",
+                                    match
+                                        ? "border-accent bg-accent-muted/30 font-semibold text-text"
+                                        : "text-text-secondary hover:bg-bg-elevated hover:text-text",
+                                )}
+                            >
+                                <item.icon size={16} className={match ? "text-accent" : "opacity-75"} />
+                                {item.label}
+                            </Link>
+                        );
+                    })}
 
                     <div className="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
                         工作区
                     </div>
                     {workspaceItems.map((item) => (
-                        <a
+                        <Link
                             key={item.key}
                             href="#"
+                            onClick={(e) => e.preventDefault()}
                             className="flex min-h-[40px] items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text"
                         >
                             <item.icon size={16} className="opacity-75" />
                             {item.label}
-                        </a>
+                        </Link>
                     ))}
                 </nav>
 

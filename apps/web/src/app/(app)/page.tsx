@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { Topbar } from "@/components/layout/Topbar";
 import { Panel } from "@/components/ui/Panel";
 import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { KpiStrip } from "@/features/dashboard/components/KpiStrip";
@@ -15,32 +12,19 @@ import { NewsList } from "@/features/dashboard/components/NewsList";
 import { useDashboard } from "@/features/dashboard/api";
 
 export default function DashboardPage() {
-  const [navOpen, setNavOpen] = useState(false);
   const { data, isLoading, isError, refetch } = useDashboard("XAUUSD");
 
-  return (
-    <div className="flex min-h-screen">
-      <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
+  if (isLoading || !data) return <LoadingView />;
+  if (isError)
+    return (
+      <ErrorState
+        title="分析服务暂时不可用"
+        description="上游超时。已保留上次有效结论的缓存不可用。"
+        onRetry={() => refetch()}
+      />
+    );
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar onMenu={() => setNavOpen(true)} updatedAt={data?.updatedAt} />
-
-        <main className="flex-1 overflow-y-auto p-4 sm:p-5">
-          {isLoading || !data ? (
-            <LoadingView />
-          ) : isError ? (
-            <ErrorState
-              title="分析服务暂时不可用"
-              description="上游超时。已保留上次有效结论的缓存不可用。"
-              onRetry={() => refetch()}
-            />
-          ) : (
-            <PopulatedView data={data} />
-          )}
-        </main>
-      </div>
-    </div>
-  );
+  return <PopulatedView data={data} />;
 }
 
 function PopulatedView({ data }: { data: NonNullable<ReturnType<typeof useDashboard>["data"]> }) {
@@ -97,13 +81,6 @@ function LoadingView() {
         <Panel title="价格走势">
           <div className="h-[280px] animate-pulse rounded-md bg-bg-elevated" />
         </Panel>
-      </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Panel key={i} title="加载中">
-            <SkeletonPanel lines={4} />
-          </Panel>
-        ))}
       </div>
     </div>
   );
