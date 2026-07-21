@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Panel } from "@/components/ui/Panel";
 import { Tabs } from "@/components/ui/Tabs";
@@ -8,11 +8,13 @@ import { ErrorState, SkeletonPanel } from "@/components/state/States";
 import { AnalysisOverview } from "@/features/analysis/components/AnalysisOverview";
 import { EvidenceChainDetail } from "@/features/analysis/components/EvidenceChainDetail";
 import { AnalysisHistory } from "@/features/analysis/components/AnalysisHistory";
+import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useAnalysis } from "@/features/analysis/api";
 import type { Timeframe } from "@/features/analysis/types";
+import { getAssetInfo } from "@/lib/assets";
 import { BrainCircuit, History, Scale } from "lucide-react";
 
-const VALID_SYMBOLS = ["XAUUSD", "XAGUSD", "DXY", "US10Y", "BTCUSD", "VIX", "NAS100", "WTI"];
+const VALID_SYMBOLS = ["XAUUSD", "XAGUSD", "DXY", "US10Y", "BTCUSD", "VIX", "NAS100", "SPX500", "WTI", "BRENT", "GLD", "SLV", "SPY"];
 const TIMEFRAMES: { key: Timeframe; label: string }[] = [
   { key: "15m", label: "15m" },
   { key: "1H", label: "1H" },
@@ -36,8 +38,10 @@ function AnalysisContent({ symbol }: { symbol: string }) {
   const [tf, setTf] = useState<Timeframe>("4H");
   const [tab, setTab] = useState<string>("overview");
   const { data, isLoading, isError, refetch } = useAnalysis(symbol);
+  const router = useRouter();
+  const info = getAssetInfo(symbol);
 
-  if (isLoading || !data) return <SkeletonView />;
+  if (isLoading || !data) return <SkeletonView symbol={symbol} />;
   if (isError)
     return (
       <ErrorState
@@ -67,10 +71,14 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
+      <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/analysis/${s}`)} />
+
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="m-0 text-xl font-semibold tracking-tight">{symbol}</h1>
+          <h1 className="m-0 text-xl font-semibold tracking-tight">
+            {info.icon} {info.name} · {symbol}
+          </h1>
           <p className="mt-0.5 text-sm text-text-muted">AI 市场分析 · {data.availableTimeframes.join(" / ")}</p>
         </div>
         {tfSelector}
@@ -89,7 +97,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
       {/* Overview tab */}
       {tab === "overview" && (
-        <Panel title="当前 AI 分析" subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
+        <Panel title={`${info.icon} ${info.name} AI 分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
           <AnalysisOverview entry={data.current} onRefresh={() => refetch()} />
         </Panel>
       )}
@@ -126,9 +134,10 @@ function AccStat({ label, value, tone }: { label: string; value: string; tone?: 
   );
 }
 
-function SkeletonView() {
+function SkeletonView({ symbol }: { symbol: string }) {
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
+      <AssetSwitcher activeSymbol={symbol} onSelect={() => {}} />
       <div className="h-10 animate-pulse rounded bg-bg-panel" />
       <div className="grid grid-cols-4 gap-px overflow-hidden rounded-lg border border-border bg-border">
         {Array.from({ length: 4 }).map((_, i) => (

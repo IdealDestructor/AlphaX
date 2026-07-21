@@ -11,35 +11,35 @@ function riskLabel(r: Kpi["riskLevel"]) {
   return r === "high" ? "高" : r === "medium" ? "中" : "低";
 }
 
-export function KpiStrip({ kpi }: { kpi: Kpi }) {
+export function KpiStrip({ kpi, symbol }: { kpi: Kpi; symbol?: string }) {
   return (
     <section
       className="grid grid-cols-1 border border-border sm:grid-cols-2 lg:grid-cols-4"
       aria-label="关键指标"
     >
-      <KpiCell label="XAUUSD 现价" value={kpi.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}>
+      <KpiCell label={`${symbol ?? "XAUUSD"} 现价`} value={kpi.price.toLocaleString("en-US", { minimumFractionDigits: 2 })}>
         <p className={cn("font-mono text-sm", deltaClass(kpi.priceChangeAbs))}>
-          ▲ +{kpi.priceChangeAbs} · +{kpi.priceChangePct}%
+          {kpi.priceChangeAbs >= 0 ? "▲" : "▼"} +{Math.abs(kpi.priceChangeAbs)} · +{kpi.priceChangePct}%
         </p>
-        <p className="text-xs text-text-muted">较前收 2,374.70</p>
+        <p className="text-xs text-text-muted">较前收 {(kpi.price - kpi.priceChangeAbs).toFixed(2)}</p>
       </KpiCell>
 
       <KpiCell label="AI 置信度" value={`${kpi.confidence}%`}>
         <p className={cn("font-mono text-sm", deltaClass(kpi.confidenceDelta))}>
-          ▲ +{kpi.confidenceDelta}pp 较上小时
+          {kpi.confidenceDelta >= 0 ? "▲" : "▼"} +{kpi.confidenceDelta}pp 较上小时
         </p>
         <p className="text-xs text-text-muted">多因子融合 · 4H 主周期</p>
       </KpiCell>
 
       <KpiCell label="风险等级" value={<span className="text-warning">{riskLabel(kpi.riskLevel)}</span>}>
         <p className="font-mono text-sm text-text-muted">
-          ATR(14) {kpi.atr} · 波动适中
+          ATR(14) {kpi.atr} · {kpi.atr > 15 ? "波动较高" : kpi.atr > 5 ? "波动适中" : "波动较低"}
         </p>
         <p className="text-xs text-text-muted">建议仓位 ≤ 账户 1.5%</p>
       </KpiCell>
 
-      <KpiCell label="情绪指数" value={<span className="text-bullish">{kpi.sentiment}</span>}>
-        <p className="font-mono text-sm text-bullish">偏多 · 机构净流入</p>
+      <KpiCell label="情绪指数" value={<span className={kpi.sentiment >= 50 ? "text-bullish" : "text-bearish"}>{kpi.sentiment}</span>}>
+        <p className={cn("font-mono text-sm", kpi.sentiment >= 50 ? "text-bullish" : "text-bearish")}>{kpi.sentimentLabel}</p>
         <p className="text-xs text-text-muted">新闻 + COT + ETF 合成</p>
       </KpiCell>
     </section>

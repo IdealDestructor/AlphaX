@@ -16,21 +16,21 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 
 | 分类 | 文档 | 说明 |
 |------|------|------|
-| 产品 | [PRD.md](./PRD.md) | 完整产品需求、用户故事、权限设计 |
-| 产品 | [ROADMAP.md](./ROADMAP.md) | 版本路线图与里程碑 |
-| 架构 | [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) | 系统架构、服务划分、数据流 |
-| 架构 | [DATABASE.md](./DATABASE.md) | ER 图、表结构、索引、迁移 |
-| 架构 | [API_SPEC.md](./API_SPEC.md) | REST + WebSocket + OpenAPI |
-| AI | [AI_ARCHITECTURE.md](./AI_ARCHITECTURE.md) | Multi-Agent、RAG、决策融合 |
-| AI | [AGENTS.md](./AGENTS.md) | 各 Agent 职责与输入输出 |
-| AI | [PROMPTS.md](./PROMPTS.md) | Prompt 集中管理规范 |
-| 规范 | [CODING_RULES.md](./CODING_RULES.md) | AI 编码约束（Cursor / Codex / Claude） |
-| 规范 | [UI_UX_SPEC.md](./UI_UX_SPEC.md) | 设计语言、主题、组件、交互 |
-| 规范 | [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) | 本地开发、目录、测试、提交 |
-| 商业 | [COMPETITOR_ANALYSIS.md](./COMPETITOR_ANALYSIS.md) | 竞品对比与差异化 |
-| 商业 | [MONETIZATION.md](./MONETIZATION.md) | 订阅体系与商业模式 |
-| 决策 | [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) | ADR 技术选型记录 |
-| 运维 | [OPS.md](./OPS.md) | Docker、CI/CD、监控、安全、部署 |
+| 产品 | [PRD.md](./docs/PRD.md) | 完整产品需求、用户故事、权限设计 |
+| 产品 | [ROADMAP.md](./docs/ROADMAP.md) | 版本路线图与里程碑 |
+| 架构 | [SYSTEM_DESIGN.md](./docs/SYSTEM_DESIGN.md) | 系统架构、服务划分、数据流 |
+| 架构 | [DATABASE.md](./docs/DATABASE.md) | ER 图、表结构、索引、迁移 |
+| 架构 | [API_SPEC.md](./docs/API_SPEC.md) | REST + WebSocket + OpenAPI |
+| AI | [AI_ARCHITECTURE.md](./docs/AI_ARCHITECTURE.md) | Multi-Agent、RAG、决策融合 |
+| AI | [AGENTS.md](./docs/AGENTS.md) | 各 Agent 职责与输入输出 |
+| AI | [PROMPTS.md](./docs/PROMPTS.md) | Prompt 集中管理规范 |
+| 规范 | [CODING_RULES.md](./docs/CODING_RULES.md) | AI 编码约束（Cursor / Codex / Claude） |
+| 规范 | [UI_UX_SPEC.md](./docs/UI_UX_SPEC.md) | 设计语言、主题、组件、交互 |
+| 规范 | [DEVELOPMENT_GUIDE.md](./docs/DEVELOPMENT_GUIDE.md) | 本地开发、目录、测试、提交 |
+| 商业 | [COMPETITOR_ANALYSIS.md](./docs/COMPETITOR_ANALYSIS.md) | 竞品对比与差异化 |
+| 商业 | [MONETIZATION.md](./docs/MONETIZATION.md) | 订阅体系与商业模式 |
+| 决策 | [ARCHITECTURE_DECISIONS.md](./docs/ARCHITECTURE_DECISIONS.md) | ADR 技术选型记录 |
+| 运维 | [OPS.md](./docs/OPS.md) | Docker、CI/CD、监控、安全、部署 |
 
 ---
 
@@ -70,7 +70,7 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 
 多通道提醒、交易复盘、仓位计算、策略回测。
 
-> 完整功能说明见 [PRD.md](./PRD.md)。
+> 完整功能说明见 [PRD.md](./docs/PRD.md)。
 
 ---
 
@@ -105,7 +105,7 @@ AI 不应直接「预测未来」，而应基于数据提供高质量决策辅�
 git clone https://github.com/<org>/AlphaX.git
 cd AlphaX
 
-# 详见 DEVELOPMENT_GUIDE.md
+# 详见 docs/DEVELOPMENT_GUIDE.md
 pnpm install
 pnpm dev
 ```

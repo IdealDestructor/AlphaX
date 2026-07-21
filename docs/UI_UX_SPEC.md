@@ -258,4 +258,4 @@ Footer / disclaimer
 
 - [CODING_RULES.md](./CODING_RULES.md)
 - [PRD.md](./PRD.md)
-- [README.md](./README.md)
+- [README.md](../README.md)

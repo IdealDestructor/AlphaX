@@ -7,6 +7,7 @@ import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { SignalFilters } from "@/features/signals/components/SignalFilters";
 import { SignalList } from "@/features/signals/components/SignalList";
 import { SignalStats } from "@/features/signals/components/SignalStats";
+import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useSignals } from "@/features/signals/api";
 import type { Action } from "@/features/signals/types";
 import { List, BarChart3 } from "lucide-react";
@@ -19,6 +20,7 @@ const PAGE_TABS = [
 export default function SignalsPage() {
   const { data, isLoading, isError, refetch } = useSignals();
 
+  const [symbol, setSymbol] = useState("");
   const [symbolFilter, setSymbolFilter] = useState("");
   const [sideFilter, setSideFilter] = useState<Action | "all">("all");
   const [outcomeFilter, setOutcomeFilter] = useState("all");
@@ -45,13 +47,6 @@ export default function SignalsPage() {
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <div>
-        <h1 className="m-0 text-xl font-semibold tracking-tight">AI 信号</h1>
-        <p className="mt-0.5 text-sm text-text-muted">
-          共 {data.signals.length} 条信号 · 胜率 {(data.stats.winRate * 100).toFixed(0)}% · 平均 R {data.stats.avgR >= 0 ? "+" : ""}{data.stats.avgR}
-        </p>
-      </div>
-
       <Tabs tabs={PAGE_TABS} active={tab} onChange={setTab} />
 
       {tab === "stats" && (
@@ -62,17 +57,28 @@ export default function SignalsPage() {
 
       {tab === "list" && (
         <>
+          <AssetSwitcher
+            activeSymbol={symbol || "XAUUSD"}
+            onSelect={(s) => {
+              setSymbol(s);
+              setSymbolFilter(s);
+            }}
+          />
           <SignalFilters
             symbols={data.availableSymbols}
             symbolFilter={symbolFilter}
             sideFilter={sideFilter}
             outcomeFilter={outcomeFilter}
             search={search}
-            onSymbolChange={setSymbolFilter}
+            onSymbolChange={(s) => {
+              setSymbolFilter(s);
+              setSymbol(s);
+            }}
             onSideChange={setSideFilter}
             onOutcomeChange={setOutcomeFilter}
             onSearchChange={setSearch}
             onClear={() => {
+              setSymbol("");
               setSymbolFilter("");
               setSideFilter("all");
               setOutcomeFilter("all");

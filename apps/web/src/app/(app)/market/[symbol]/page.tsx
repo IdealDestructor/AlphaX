@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/Panel";
 import { Button } from "@/components/ui/Button";
 import { ErrorState, SkeletonPanel } from "@/components/state/States";
@@ -10,13 +10,15 @@ import { MarketChart } from "@/features/market/components/MarketChart";
 import { MarketStats } from "@/features/market/components/MarketStats";
 import { TimeframeSwitcher } from "@/features/market/components/TimeframeSwitcher";
 import { IndicatorsPanel } from "@/features/market/components/IndicatorsPanel";
+import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useMarketData } from "@/features/market/api";
 import { AiAnalysisCard } from "@/features/dashboard/components/AiAnalysisCard";
 import { useDashboard } from "@/features/dashboard/api";
+import { getAssetInfo } from "@/lib/assets";
 import type { Timeframe } from "@/features/market/types";
 import { RefreshCw, BrainCircuit } from "lucide-react";
 
-const VALID_SYMBOLS = ["XAUUSD", "XAGUSD", "DXY", "US10Y", "BTCUSD", "VIX", "NAS100", "WTI"];
+const VALID_SYMBOLS = ["XAUUSD", "XAGUSD", "DXY", "US10Y", "BTCUSD", "VIX", "NAS100", "SPX500", "WTI", "BRENT", "GLD", "SLV", "SPY"];
 
 export default function MarketPage({ params }: { params: { symbol: string } }) {
   const symbol = params.symbol.toUpperCase();
@@ -31,13 +33,16 @@ export default function MarketPage({ params }: { params: { symbol: string } }) {
 function MarketContent({ symbol }: { symbol: string }) {
   const [tf, setTf] = useState<Timeframe>("1H");
   const [showIndicators, setShowIndicators] = useState(true);
+  const router = useRouter();
 
   const { data, isLoading, isError, refetch } = useMarketData(symbol, tf);
   const dashboardQuery = useDashboard(symbol);
+  const info = getAssetInfo(symbol);
 
   if (isLoading || !data)
     return (
       <div className="mx-auto flex max-w-container flex-col gap-4">
+        <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/market/${s}`)} />
         <div className="h-24 animate-pulse rounded-lg bg-bg-panel" />
         <div className="h-[480px] animate-pulse rounded-lg bg-bg-panel" />
         <div className="grid grid-cols-2 gap-4">
@@ -58,6 +63,8 @@ function MarketContent({ symbol }: { symbol: string }) {
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
+      <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/market/${s}`)} />
+
       {/* Header */}
       <MarketHeader
         quote={data.quote}
@@ -85,7 +92,7 @@ function MarketContent({ symbol }: { symbol: string }) {
 
       {/* Chart + Indicators */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_220px]">
-        <Panel title="K 线图" subtitle={`${symbol} · ${tf}`} bodyClassName="p-1">
+        <Panel title={`${info.icon} ${info.name} K 线图`} subtitle={`${symbol} · ${tf}`} bodyClassName="p-1">
           <MarketChart candles={data.candles} timeframe={tf} />
         </Panel>
 

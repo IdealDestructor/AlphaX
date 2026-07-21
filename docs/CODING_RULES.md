@@ -55,7 +55,7 @@ AlphaX/
   db/
     migrations/
     timeseries/
-  docs/                  # 可选：把 md 迁入；当前可留根目录
+  docs/                   # 项目文档（README 除外）
   docker/
   .github/workflows/
 ```

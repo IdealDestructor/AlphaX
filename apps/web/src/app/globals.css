@@ -30,6 +30,12 @@
   --font-mono: "Geist Mono", "Roboto Mono", ui-monospace, Menlo, monospace;
 }
 
+/* Chinese style: red up, green down */
+[data-color-scheme="chinese"] {
+  --bullish: #ef4444;
+  --bearish: #22c55e;
+}
+
 @layer base {
   * {
     border-color: var(--border);
