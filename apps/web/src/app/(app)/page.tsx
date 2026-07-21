@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Panel } from "@/components/ui/Panel";
 import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { KpiStrip } from "@/features/dashboard/components/KpiStrip";
@@ -10,18 +9,16 @@ import { PriceChart } from "@/features/dashboard/components/PriceChart";
 import { SignalsTable } from "@/features/dashboard/components/SignalsTable";
 import { SentimentPanel } from "@/features/dashboard/components/SentimentPanel";
 import { NewsList } from "@/features/dashboard/components/NewsList";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useDashboard } from "@/features/dashboard/api";
 import { getAssetInfo } from "@/lib/assets";
+import { useSymbol } from "@/lib/symbol-context";
 
 export default function DashboardPage() {
-  const [symbol, setSymbol] = useState("XAUUSD");
+  const { currentSymbol: symbol } = useSymbol();
   const { data, isLoading, isError, refetch } = useDashboard(symbol);
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <AssetSwitcher activeSymbol={symbol} onSelect={setSymbol} />
-
       {isLoading || !data ? (
         <LoadingView />
       ) : isError ? (
@@ -44,6 +41,10 @@ function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof u
       <TickerStrip items={data.ticker} />
       <KpiStrip kpi={data.kpi} symbol={symbol} />
 
+      <Panel title="新闻摘要">
+        <NewsList items={data.news} />
+      </Panel>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_1fr]">
         <Panel
           title={`${info.icon} ${info.name} AI 分析`}
@@ -57,15 +58,12 @@ function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof u
         </Panel>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.25fr_0.9fr_0.95fr]">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.25fr_1fr]">
         <Panel title="近期 AI 信号">
           <SignalsTable rows={data.signals} />
         </Panel>
         <Panel title="市场情绪">
           <SentimentPanel data={data.sentiment} />
-        </Panel>
-        <Panel title="新闻摘要">
-          <NewsList items={data.news} />
         </Panel>
       </div>
 

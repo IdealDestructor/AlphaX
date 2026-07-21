@@ -7,8 +7,8 @@ import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { ForecastChart } from "@/features/forecast/components/ForecastChart";
 import { ForecastTable } from "@/features/forecast/components/ForecastTable";
 import { ForecastSummary } from "@/features/forecast/components/ForecastSummary";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useForecast } from "@/features/forecast/api";
+import { useSymbol } from "@/lib/symbol-context";
 import { BarChart3, Table2, TrendingUp } from "lucide-react";
 
 const PAGE_TABS = [
@@ -18,13 +18,12 @@ const PAGE_TABS = [
 ] as const;
 
 export default function ForecastPage() {
-  const [symbol, setSymbol] = useState("XAUUSD");
+  const { currentSymbol: symbol } = useSymbol();
   const [tab, setTab] = useState("summary");
   const { data, isLoading, isError, refetch } = useForecast(symbol);
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <AssetSwitcher activeSymbol={symbol} onSelect={setSymbol} />
 
       {isLoading || !data ? (
         <SkeletonView />

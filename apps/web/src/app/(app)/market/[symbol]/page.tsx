@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { Panel } from "@/components/ui/Panel";
 import { Button } from "@/components/ui/Button";
@@ -10,11 +10,11 @@ import { MarketChart } from "@/features/market/components/MarketChart";
 import { MarketStats } from "@/features/market/components/MarketStats";
 import { TimeframeSwitcher } from "@/features/market/components/TimeframeSwitcher";
 import { IndicatorsPanel } from "@/features/market/components/IndicatorsPanel";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useMarketData } from "@/features/market/api";
 import { AiAnalysisCard } from "@/features/dashboard/components/AiAnalysisCard";
 import { useDashboard } from "@/features/dashboard/api";
 import { getAssetInfo } from "@/lib/assets";
+import { useSymbol } from "@/lib/symbol-context";
 import type { Timeframe } from "@/features/market/types";
 import { RefreshCw, BrainCircuit } from "lucide-react";
 
@@ -33,7 +33,10 @@ export default function MarketPage({ params }: { params: { symbol: string } }) {
 function MarketContent({ symbol }: { symbol: string }) {
   const [tf, setTf] = useState<Timeframe>("1H");
   const [showIndicators, setShowIndicators] = useState(true);
+  const { setCurrentSymbol } = useSymbol();
   const router = useRouter();
+
+  useEffect(() => { setCurrentSymbol(symbol); }, [symbol, setCurrentSymbol]);
 
   const { data, isLoading, isError, refetch } = useMarketData(symbol, tf);
   const dashboardQuery = useDashboard(symbol);
@@ -42,7 +45,6 @@ function MarketContent({ symbol }: { symbol: string }) {
   if (isLoading || !data)
     return (
       <div className="mx-auto flex max-w-container flex-col gap-4">
-        <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/market/${s}`)} />
         <div className="h-24 animate-pulse rounded-lg bg-bg-panel" />
         <div className="h-[480px] animate-pulse rounded-lg bg-bg-panel" />
         <div className="grid grid-cols-2 gap-4">
@@ -63,7 +65,6 @@ function MarketContent({ symbol }: { symbol: string }) {
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/market/${s}`)} />
 
       {/* Header */}
       <MarketHeader

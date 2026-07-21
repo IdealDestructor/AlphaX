@@ -7,8 +7,8 @@ import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { SignalFilters } from "@/features/signals/components/SignalFilters";
 import { SignalList } from "@/features/signals/components/SignalList";
 import { SignalStats } from "@/features/signals/components/SignalStats";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useSignals } from "@/features/signals/api";
+import { useSymbol } from "@/lib/symbol-context";
 import type { Action } from "@/features/signals/types";
 import { List, BarChart3 } from "lucide-react";
 
@@ -20,8 +20,8 @@ const PAGE_TABS = [
 export default function SignalsPage() {
   const { data, isLoading, isError, refetch } = useSignals();
 
-  const [symbol, setSymbol] = useState("");
-  const [symbolFilter, setSymbolFilter] = useState("");
+  const { currentSymbol } = useSymbol();
+  const [symbolFilter, setSymbolFilter] = useState(currentSymbol);
   const [sideFilter, setSideFilter] = useState<Action | "all">("all");
   const [outcomeFilter, setOutcomeFilter] = useState("all");
   const [search, setSearch] = useState("");
@@ -57,28 +57,17 @@ export default function SignalsPage() {
 
       {tab === "list" && (
         <>
-          <AssetSwitcher
-            activeSymbol={symbol || "XAUUSD"}
-            onSelect={(s) => {
-              setSymbol(s);
-              setSymbolFilter(s);
-            }}
-          />
           <SignalFilters
             symbols={data.availableSymbols}
             symbolFilter={symbolFilter}
             sideFilter={sideFilter}
             outcomeFilter={outcomeFilter}
             search={search}
-            onSymbolChange={(s) => {
-              setSymbolFilter(s);
-              setSymbol(s);
-            }}
+            onSymbolChange={setSymbolFilter}
             onSideChange={setSideFilter}
             onOutcomeChange={setOutcomeFilter}
             onSearchChange={setSearch}
             onClear={() => {
-              setSymbol("");
               setSymbolFilter("");
               setSideFilter("all");
               setOutcomeFilter("all");

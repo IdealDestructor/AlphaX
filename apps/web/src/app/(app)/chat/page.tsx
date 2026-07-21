@@ -3,14 +3,14 @@
 import { useState, useCallback } from "react";
 import { SkeletonPanel, EmptyState } from "@/components/state/States";
 import { ChatWindow } from "@/features/chat/components/ChatWindow";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useChatPageData, useSendMessage } from "@/features/chat/api";
+import { useSymbol } from "@/lib/symbol-context";
 
 export default function ChatPage() {
   const { data, isLoading, refetch } = useChatPageData();
   const sendMessage = useSendMessage();
   const [currentId, setCurrentId] = useState<string | null>(null);
-  const [symbol, setSymbol] = useState("XAUUSD");
+  const { currentSymbol: symbol } = useSymbol();
 
   const handleSelectSession = useCallback((id: string) => {
     setCurrentId(id);
@@ -55,7 +55,6 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <AssetSwitcher activeSymbol={symbol} onSelect={setSymbol} />
       <ChatWindow
         sessions={data.sessions}
         currentSessionId={sessionId}

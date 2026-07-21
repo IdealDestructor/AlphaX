@@ -6,13 +6,13 @@ import { SkeletonPanel, ErrorState } from "@/components/state/States";
 import { NewsCard } from "@/features/news/components/NewsCard";
 import { NewsFilters } from "@/features/news/components/NewsFilters";
 import { NewsStats } from "@/features/news/components/NewsStats";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useNews } from "@/features/news/api";
+import { useSymbol } from "@/lib/symbol-context";
 
 export default function NewsPage() {
   const { data, isLoading, isError, refetch } = useNews();
 
-  const [symbol, setSymbol] = useState("");
+  const { currentSymbol: symbol } = useSymbol();
   const [categoryFilter, setCategoryFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
   const [toneFilter, setToneFilter] = useState("all");
@@ -41,11 +41,6 @@ export default function NewsPage() {
     <div className="mx-auto flex max-w-container flex-col gap-4">
       <NewsStats items={data.items} filtered={filtered} />
 
-      <AssetSwitcher
-        activeSymbol={symbol || "XAUUSD"}
-        onSelect={setSymbol}
-      />
-
       <NewsFilters
         categories={data.categories}
         sources={data.sources}
@@ -58,7 +53,6 @@ export default function NewsPage() {
         onToneChange={setToneFilter}
         onSearchChange={setSearch}
         onClear={() => {
-          setSymbol("");
           setCategoryFilter("");
           setSourceFilter("");
           setToneFilter("all");
@@ -72,7 +66,6 @@ export default function NewsPage() {
             <p>暂无匹配新闻</p>
               <button
                 onClick={() => {
-                  setSymbol("");
                   setCategoryFilter("");
                   setSourceFilter("");
                   setToneFilter("all");

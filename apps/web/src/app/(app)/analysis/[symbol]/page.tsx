@@ -1,15 +1,15 @@
 "use client";
 
 import { notFound, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Panel } from "@/components/ui/Panel";
 import { Tabs } from "@/components/ui/Tabs";
 import { ErrorState, SkeletonPanel } from "@/components/state/States";
 import { AnalysisOverview } from "@/features/analysis/components/AnalysisOverview";
 import { EvidenceChainDetail } from "@/features/analysis/components/EvidenceChainDetail";
 import { AnalysisHistory } from "@/features/analysis/components/AnalysisHistory";
-import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 import { useAnalysis } from "@/features/analysis/api";
+import { useSymbol } from "@/lib/symbol-context";
 import type { Timeframe } from "@/features/analysis/types";
 import { getAssetInfo } from "@/lib/assets";
 import { BrainCircuit, History, Scale } from "lucide-react";
@@ -38,8 +38,11 @@ function AnalysisContent({ symbol }: { symbol: string }) {
   const [tf, setTf] = useState<Timeframe>("4H");
   const [tab, setTab] = useState<string>("overview");
   const { data, isLoading, isError, refetch } = useAnalysis(symbol);
+  const { setCurrentSymbol } = useSymbol();
   const router = useRouter();
   const info = getAssetInfo(symbol);
+
+  useEffect(() => { setCurrentSymbol(symbol); }, [symbol, setCurrentSymbol]);
 
   if (isLoading || !data) return <SkeletonView symbol={symbol} />;
   if (isError)
@@ -71,7 +74,6 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <AssetSwitcher activeSymbol={symbol} onSelect={(s) => router.push(`/analysis/${s}`)} />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -137,7 +139,6 @@ function AccStat({ label, value, tone }: { label: string; value: string; tone?: 
 function SkeletonView({ symbol }: { symbol: string }) {
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
-      <AssetSwitcher activeSymbol={symbol} onSelect={() => {}} />
       <div className="h-10 animate-pulse rounded bg-bg-panel" />
       <div className="grid grid-cols-4 gap-px overflow-hidden rounded-lg border border-border bg-border">
         {Array.from({ length: 4 }).map((_, i) => (

@@ -1,15 +1,17 @@
+"use client";
+
 import { cn } from "@/lib/cn";
 import { CATEGORIES, ASSETS, getAssetInfo } from "@/lib/assets";
-import type { AssetCategory } from "@/lib/assets";
 import { useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useSymbol } from "@/lib/symbol-context";
 
-interface Props {
-  activeSymbol: string;
-  onSelect: (symbol: string) => void;
-}
+export function AssetSwitcher() {
+  const { currentSymbol, setCurrentSymbol } = useSymbol();
+  const pathname = usePathname();
+  const router = useRouter();
 
-export function AssetSwitcher({ activeSymbol, onSelect }: Props) {
-  const active = getAssetInfo(activeSymbol);
+  const active = getAssetInfo(currentSymbol);
 
   const grouped = useMemo(() => {
     const map: Record<string, typeof ASSETS> = {};
@@ -19,8 +21,21 @@ export function AssetSwitcher({ activeSymbol, onSelect }: Props) {
     return map;
   }, []);
 
+  function handleSelect(symbol: string) {
+    const marketMatch = pathname.match(/^\/market\/([A-Z]+)/);
+    const analysisMatch = pathname.match(/^\/analysis\/([A-Z]+)/);
+
+    if (marketMatch) {
+      router.push(`/market/${symbol}`);
+    } else if (analysisMatch) {
+      router.push(`/analysis/${symbol}`);
+    } else {
+      setCurrentSymbol(symbol);
+    }
+  }
+
   return (
-    <section className="border border-border bg-bg-panel">
+    <section className="border-t border-border bg-bg-panel">
       <div className="flex flex-wrap items-stretch">
         {CATEGORIES.map((cat) => {
           const items = grouped[cat.key] ?? [];
@@ -39,11 +54,11 @@ export function AssetSwitcher({ activeSymbol, onSelect }: Props) {
               </div>
               <div className="flex flex-col">
                 {items.map((asset) => {
-                  const isActive = activeSymbol === asset.symbol;
+                  const isActive = currentSymbol === asset.symbol;
                   return (
                     <button
                       key={asset.symbol}
-                      onClick={() => onSelect(asset.symbol)}
+                      onClick={() => handleSelect(asset.symbol)}
                       className={cn(
                         "flex items-center gap-2 px-3 py-1.5 text-left text-xs transition-colors",
                         isActive

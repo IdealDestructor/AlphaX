@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/cn";
-import { ASSETS, CATEGORIES, getAssetInfo } from "@/lib/assets";
 import {
     LayoutDashboard,
     LineChart,
@@ -14,7 +13,7 @@ import {
     Settings,
     X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -49,13 +48,6 @@ export function Sidebar({
     }, [open, onClose]);
 
     const pathname = usePathname();
-    const [assetOpen, setAssetOpen] = useState(true);
-
-    function assetHref(symbol: string) {
-      const match = pathname.match(/^\/(market|analysis)\/([A-Z]+)/);
-      if (match) return `/${match[1]}/${symbol}`;
-      return `/analysis/${symbol}`;
-    }
 
     return (
         <>
@@ -113,50 +105,6 @@ export function Sidebar({
                             </Link>
                         );
                     })}
-
-                    {/* Asset quick-switch */}
-                    <div className="px-3 pb-1 pt-4">
-                        <button
-                            onClick={() => setAssetOpen((v) => !v)}
-                            className="flex w-full items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-text-muted"
-                        >
-                            <span>品种切换</span>
-                            <span className={`transition-transform ${assetOpen ? "rotate-90" : ""}`}>▶</span>
-                        </button>
-                    </div>
-                    {assetOpen && (
-                        <div className="mb-2 space-y-0.5 px-2">
-                            {CATEGORIES.map((cat) => {
-                                const items = ASSETS.filter((a) => a.category === cat.key);
-                                return (
-                                    <div key={cat.key} className="pt-1">
-                                        <div className="px-3 py-1 text-[10px] uppercase tracking-wider text-text-muted/60">
-                                            {cat.icon} {cat.label}
-                                        </div>
-                                        {items.map((asset) => {
-                                            const isActive = pathname.includes(asset.symbol);
-                                            return (
-                                                <Link
-                                                    key={asset.symbol}
-                                                    href={assetHref(asset.symbol)}
-                                                    onClick={onClose}
-                                                    className={cn(
-                                                        "flex items-center gap-2 rounded px-3 py-1.5 text-xs transition-colors",
-                                                        isActive
-                                                            ? "bg-accent/15 font-semibold text-accent"
-                                                            : "text-text-secondary hover:bg-bg-elevated hover:text-text",
-                                                    )}
-                                                >
-                                                    <span className="font-mono">{asset.symbol}</span>
-                                                    <span className="text-text-muted">{asset.name}</span>
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
 
                     <div className="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
                         工作区
