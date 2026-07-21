@@ -4,13 +4,10 @@ import { cn } from "@/lib/cn";
 import {
     LayoutDashboard,
     LineChart,
+    Newspaper,
     BrainCircuit,
     Zap,
     TrendingUp,
-    Newspaper,
-    MessageSquare,
-    Bell,
-    Settings,
     X,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -20,16 +17,10 @@ import { usePathname } from "next/navigation";
 const navItems = [
     { key: "overview", label: "市场总览", icon: LayoutDashboard, href: "/" },
     { key: "market", label: "实时行情", icon: LineChart, href: "/market/XAUUSD" },
-    { key: "analysis", label: "AI 分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
-    { key: "signals", label: "AI 信号", icon: Zap, href: "/signals" },
-    { key: "forecast", label: "概率预测", icon: TrendingUp, href: "/forecast" },
-] as const;
-
-const workspaceItems = [
     { key: "news", label: "新闻摘要", icon: Newspaper, href: "/news" },
-    { key: "chat", label: "AI 对话", icon: MessageSquare, href: "/chat" },
-    { key: "alerts", label: "价格告警", icon: Bell, href: "/alerts" },
-    { key: "settings", label: "设置", icon: Settings, href: "/settings" },
+    { key: "analysis", label: "智能分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
+    { key: "signals", label: "交易信号", icon: Zap, href: "/signals" },
+    { key: "forecast", label: "概率预测", icon: TrendingUp, href: "/forecast" },
 ] as const;
 
 export function Sidebar({
@@ -92,30 +83,6 @@ export function Sidebar({
                                 key={item.key}
                                 href={item.href}
                                 onClick={onClose}
-                                aria-current={match ? "page" : undefined}
-                                className={cn(
-                                    "flex min-h-[40px] items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm transition-colors",
-                                    match
-                                        ? "border-accent bg-accent-muted/30 font-semibold text-text"
-                                        : "text-text-secondary hover:bg-bg-elevated hover:text-text",
-                                )}
-                            >
-                                <item.icon size={16} className={match ? "text-accent" : "opacity-75"} />
-                                {item.label}
-                            </Link>
-                        );
-                    })}
-
-                    <div className="px-3 pb-2 pt-4 text-[10px] font-semibold uppercase tracking-wider text-text-muted">
-                        工作区
-                    </div>
-                    {workspaceItems.map((item) => {
-                        const match = !!item.href && pathname.startsWith(item.href);
-                        return (
-                            <Link
-                                key={item.key}
-                                href={item.href ?? "#"}
-                                onClick={item.href ? onClose : (e) => e.preventDefault()}
                                 aria-current={match ? "page" : undefined}
                                 className={cn(
                                     "flex min-h-[40px] items-center gap-3 border-l-2 border-transparent px-3 py-2 text-sm transition-colors",

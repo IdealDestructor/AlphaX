@@ -47,7 +47,7 @@ function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof u
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_1fr]">
         <Panel
-          title={`${info.icon} ${info.name} AI 分析`}
+          title={`${info.icon} ${info.name} 智能分析`}
           subtitle={`${symbol} · 可解释决策`}
           className="border-t-2 border-t-accent"
         >
@@ -59,7 +59,7 @@ function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof u
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.25fr_1fr]">
-        <Panel title="近期 AI 信号">
+        <Panel title="近期交易信号">
           <SignalsTable rows={data.signals} />
         </Panel>
         <Panel title="市场情绪">

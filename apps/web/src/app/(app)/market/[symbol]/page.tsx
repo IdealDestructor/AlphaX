@@ -112,7 +112,7 @@ function MarketContent({ symbol }: { symbol: string }) {
       {/* AI Analysis card (from dashboard hook) */}
       {dashboardQuery.data && (
         <Panel
-          title="AI 分析"
+          title="智能分析"
           subtitle={`${symbol} · 融合决策`}
           className="border-t-2 border-t-accent"
         >

@@ -38,7 +38,7 @@ export function useSendMessage() {
       const reply: ChatMessage = {
         id: `m_auto_${Date.now()}`,
         role: "assistant",
-        content: `已收到您的消息：「${content}」\n\n当前模拟模式，AI 分析管线尚未接入。您的提问已记录，正式上线后将调用多 Agent 融合分析引擎进行实时回答。\n\n*如需查看完整 AI 分析能力，请前往「AI 分析」页面。*`,
+        content: `已收到您的消息：「${content}」\n\n当前模拟模式，智能分析管线尚未接入。您的提问已记录，正式上线后将调用多 Agent 融合分析引擎进行实时回答。\n\n*如需查看完整智能分析能力，请前往「智能分析」页面。*`,
         timestamp: new Date().toISOString(),
         tokens: 64,
         model: "fusion-v2.1-sim",

@@ -48,7 +48,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
   if (isError)
     return (
       <ErrorState
-        title="AI 分析不可用"
+        title="智能分析不可用"
         description="分析服务暂时不可用，请稍后重试。"
         onRetry={() => refetch()}
       />
@@ -99,7 +99,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
       {/* Overview tab */}
       {tab === "overview" && (
-        <Panel title={`${info.icon} ${info.name} AI 分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
+        <Panel title={`${info.icon} ${info.name} 智能分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
           <AnalysisOverview entry={data.current} onRefresh={() => refetch()} />
         </Panel>
       )}
@@ -113,7 +113,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
       {/* History tab */}
       {tab === "history" && (
-        <Panel title="历史 AI 分析" subtitle="近 7 天所有分析记录">
+        <Panel title="历史智能分析" subtitle="近 7 天所有分析记录">
           <AnalysisHistory history={data.history} />
         </Panel>
       )}

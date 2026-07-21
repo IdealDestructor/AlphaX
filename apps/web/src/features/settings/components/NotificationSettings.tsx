@@ -7,7 +7,7 @@ interface Props {
 
 const SECTIONS: { key: keyof NotificationSettingsType; label: string; desc: string }[] = [
   { key: "priceAlerts", label: "价格告警", desc: "价格触及告警条件时通知" },
-  { key: "aiSignals", label: "AI 信号", desc: "新 AI 信号发布时通知" },
+  { key: "aiSignals", label: "交易信号", desc: "新交易信号发布时通知" },
   { key: "newsAlerts", label: "新闻告警", desc: "重大新闻推送时通知" },
 ];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Menu, Search, MessageSquare } from "lucide-react";
+import { Menu, Search, Bell, Settings } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ASSETS } from "@/lib/assets";
 import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
@@ -9,11 +9,10 @@ import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
 const routeTitles: Record<string, string> = {
   "/": "市场总览",
   "/market": "实时行情",
-  "/analysis": "AI 分析",
-  "/signals": "AI 信号",
+  "/analysis": "智能分析",
+  "/signals": "交易信号",
   "/forecast": "概率预测",
   "/news": "新闻摘要",
-  "/chat": "AI 对话",
   "/alerts": "价格告警",
   "/settings": "设置",
 };
@@ -41,6 +40,9 @@ export function Topbar({
   const title = Object.entries(routeTitles).find(([key]) =>
     key === "/" ? pathname === "/" : pathname.startsWith(key),
   )?.[1];
+
+  const showAssetSwitcher =
+    !pathname.startsWith("/alerts") && !pathname.startsWith("/settings");
 
   const symbolsList = ASSETS.map((a) => a.symbol).join("、");
 
@@ -91,13 +93,27 @@ export function Topbar({
           ) : null}
 
           <Button variant="secondary">刷新</Button>
-          <Button variant="primary" onClick={() => router.push("/chat")}>
-            <MessageSquare size={14} />
-            <span className="hidden sm:inline">问 AI</span>
+          <Button
+            variant="ghost"
+            className="w-9 px-0"
+            onClick={() => router.push("/alerts")}
+            aria-label="价格告警"
+            aria-current={pathname.startsWith("/alerts") ? "page" : undefined}
+          >
+            <Bell size={16} />
+          </Button>
+          <Button
+            variant="ghost"
+            className="w-9 px-0"
+            onClick={() => router.push("/settings")}
+            aria-label="设置"
+            aria-current={pathname.startsWith("/settings") ? "page" : undefined}
+          >
+            <Settings size={16} />
           </Button>
         </div>
       </div>
-      <AssetSwitcher />
+      {showAssetSwitcher ? <AssetSwitcher /> : null}
     </header>
   );
 }
