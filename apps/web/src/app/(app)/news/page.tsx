@@ -60,30 +60,15 @@ export default function NewsPage() {
         }}
       />
 
-      <Panel title="新闻列表" bodyClassName="p-0">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 px-4 py-12 text-sm text-text-muted">
-            <p>暂无匹配新闻</p>
-              <button
-                onClick={() => {
-                  setCategoryFilter("");
-                  setSourceFilter("");
-                  setToneFilter("all");
-                  setSearch("");
-                }}
-                className="text-accent hover:underline"
-              >
-                清除筛选条件
-              </button>
-          </div>
-        ) : (
+      {filtered.length > 0 && (
+        <Panel title="新闻列表" bodyClassName="p-0">
           <div className="divide-y divide-border-subtle">
             {filtered.map((item) => (
               <NewsCard key={item.id} item={item} />
             ))}
           </div>
-        )}
-      </Panel>
+        </Panel>
+      )}
 
       <p className="border-t border-border-subtle pt-4 text-xs text-text-muted">
         免责声明：AlphaX 提供的智能分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。

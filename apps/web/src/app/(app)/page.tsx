@@ -41,9 +41,11 @@ function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof u
       <TickerStrip items={data.ticker} />
       <KpiStrip kpi={data.kpi} symbol={symbol} />
 
-      <Panel title="新闻摘要">
-        <NewsList items={data.news} />
-      </Panel>
+      {data.news.length > 0 && (
+        <Panel title="新闻摘要">
+          <NewsList items={data.news} />
+        </Panel>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_1fr]">
         <Panel

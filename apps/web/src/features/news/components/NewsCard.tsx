@@ -53,7 +53,7 @@ export function NewsCard({ item }: { item: AiNewsItem }) {
               {item.tone === "bullish" ? "利多" : item.tone === "bearish" ? "利空" : "中性"}
             </Badge>
             <span className="text-[10px] text-text-muted">置信度 {Math.round(item.confidence * 100)}%</span>
-            <span className="text-[10px] text-text-muted">· 预期影响 {item.expectedDuration}</span>
+            {item.expectedDuration && <span className="text-[10px] text-text-muted">· 预期影响 {item.expectedDuration}</span>}
           </div>
         </div>
         <div className="mt-1 shrink-0 text-text-muted">
@@ -73,10 +73,12 @@ export function NewsCard({ item }: { item: AiNewsItem }) {
                 {s}
               </span>
             ))}
-            <span className="inline-flex items-center gap-1">
-              <Clock size={12} />
-              影响期: {item.expectedDuration}
-            </span>
+            {item.expectedDuration && (
+              <span className="inline-flex items-center gap-1">
+                <Clock size={12} />
+                影响期: {item.expectedDuration}
+              </span>
+            )}
             <span className="ml-auto text-[10px]">
               置信度
               <span className={cn("ml-1 font-semibold", item.confidence >= 0.7 ? "text-bullish" : item.confidence >= 0.5 ? "text-warning" : "text-text-muted")}>

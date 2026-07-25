@@ -4,14 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchMockNews } from "./mock";
 import type { NewsPageData } from "./types";
 
-function fetchNews(): Promise<NewsPageData> {
-  return new Promise((r) => setTimeout(() => r(fetchMockNews()), 600));
+async function fetchNews(): Promise<NewsPageData> {
+  try {
+    const res = await fetch("/api/news", { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return (await res.json()) as NewsPageData;
+  } catch {
+    return fetchMockNews();
+  }
 }
 
 export function useNews() {
   return useQuery({
     queryKey: ["news"],
     queryFn: fetchNews,
-    staleTime: 30_000,
+    staleTime: 60_000,
+    retry: 1,
+    retryDelay: 2000,
   });
 }
