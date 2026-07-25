@@ -16,19 +16,7 @@ import {
   type Time,
 } from "lightweight-charts";
 import type { Candle, Timeframe } from "@/features/market/types";
-
-const colors = {
-  bg: "transparent",
-  text: "#6b7689",
-  grid: "#1e2633",
-  up: "#22c55e",
-  down: "#ef4444",
-  volUp: "#22c55e33",
-  volDown: "#ef444433",
-  crosshair: "#3ecf8e",
-  ma20: "#f59e0b",
-  ma50: "#8b5cf6",
-};
+import { useColorScheme, type ChartColors } from "@/lib/use-color-scheme";
 
 interface Props {
   candles: Candle[];
@@ -37,12 +25,14 @@ interface Props {
 }
 
 export function MarketChart({ candles, height = 480 }: Props) {
+  const { chartColors } = useColorScheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   const ma20Ref = useRef<ISeriesApi<"Line"> | null>(null);
   const ma50Ref = useRef<ISeriesApi<"Line"> | null>(null);
+  const lastCandlesRef = useRef<Candle[]>([]);
 
   const handleResize = useCallback(() => {
     if (chartRef.current && containerRef.current) {
@@ -57,34 +47,34 @@ export function MarketChart({ candles, height = 480 }: Props) {
 
     const chart = createChart(containerRef.current, {
       layout: {
-        background: { type: ColorType.Solid, color: colors.bg },
-        textColor: colors.text,
+        background: { type: ColorType.Solid, color: "transparent" },
+        textColor: chartColors.text,
         fontSize: 11,
         fontFamily: "'Geist Mono', 'Roboto Mono', ui-monospace, monospace",
       },
       grid: {
-        vertLines: { color: colors.grid },
-        horzLines: { color: colors.grid },
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
       },
       crosshair: {
         mode: CrosshairMode.Normal,
         vertLine: {
-          color: colors.crosshair,
+          color: chartColors.crosshair,
           width: 1,
-          labelBackgroundColor: colors.crosshair,
+          labelBackgroundColor: chartColors.crosshair,
         },
         horzLine: {
-          color: colors.crosshair,
+          color: chartColors.crosshair,
           width: 1,
-          labelBackgroundColor: colors.crosshair,
+          labelBackgroundColor: chartColors.crosshair,
         },
       },
       rightPriceScale: {
-        borderColor: colors.grid,
+        borderColor: chartColors.grid,
         scaleMargins: { top: 0.05, bottom: 0.15 },
       },
       timeScale: {
-        borderColor: colors.grid,
+        borderColor: chartColors.grid,
         timeVisible: true,
         secondsVisible: false,
       },
@@ -96,12 +86,12 @@ export function MarketChart({ candles, height = 480 }: Props) {
     chartRef.current = chart;
 
     const candleSeries = chart.addSeries(CandlestickSeries, {
-      upColor: colors.up,
-      downColor: colors.down,
-      borderUpColor: colors.up,
-      borderDownColor: colors.down,
-      wickUpColor: colors.up,
-      wickDownColor: colors.down,
+      upColor: chartColors.up,
+      downColor: chartColors.down,
+      borderUpColor: chartColors.up,
+      borderDownColor: chartColors.down,
+      wickUpColor: chartColors.up,
+      wickDownColor: chartColors.down,
       priceFormat: {
         type: "price",
         precision: 2,
@@ -112,27 +102,27 @@ export function MarketChart({ candles, height = 480 }: Props) {
     candleSeriesRef.current = candleSeries;
 
     const volSeries = chart.addSeries(HistogramSeries, {
-      color: colors.volUp,
+      color: chartColors.volUp,
       priceFormat: { type: "volume" },
       priceScaleId: "volume",
     });
 
     chart.priceScale("volume").applyOptions({
       scaleMargins: { top: 0.85, bottom: 0 },
-      borderColor: colors.grid,
+      borderColor: chartColors.grid,
     });
 
     volSeriesRef.current = volSeries;
 
     const ma20Series = chart.addSeries(LineSeries, {
-      color: colors.ma20,
+      color: chartColors.ma20,
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
     });
 
     const ma50Series = chart.addSeries(LineSeries, {
-      color: colors.ma50,
+      color: chartColors.ma50,
       lineWidth: 2,
       priceLineVisible: false,
       lastValueVisible: false,
@@ -146,6 +136,10 @@ export function MarketChart({ candles, height = 480 }: Props) {
       window.removeEventListener("resize", handleResize);
       chart.remove();
       chartRef.current = null;
+      candleSeriesRef.current = null;
+      volSeriesRef.current = null;
+      ma20Ref.current = null;
+      ma50Ref.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [height]);
@@ -153,43 +147,96 @@ export function MarketChart({ candles, height = 480 }: Props) {
   useEffect(() => {
     if (!candleSeriesRef.current || !volSeriesRef.current || !candles.length) return;
 
-    const cdata: CandlestickData<Time>[] = candles.map((c) => ({
-      time: c.time as Time,
-      open: c.open,
-      high: c.high,
-      low: c.low,
-      close: c.close,
-    }));
-
-    candleSeriesRef.current.setData(cdata);
-
-    const vdata: HistogramData<Time>[] = candles.map((c) => ({
-      time: c.time as Time,
-      value: c.volume,
-      color: c.close >= c.open ? colors.volUp : colors.volDown,
-    }));
-
-    volSeriesRef.current.setData(vdata);
-
-    const closes = candles.map((c) => c.close);
-    const times = candles.map((c) => c.time);
-
-    const ma20 = computeMA(closes, 20).map((v, i) => ({
-      time: times[i + 19] as Time,
-      value: v,
-    }));
-    ma20Ref.current?.setData(ma20 as LineData<Time>[]);
-
-    const ma50 = computeMA(closes, 50).map((v, i) => ({
-      time: times[i + 49] as Time,
-      value: v,
-    }));
-    ma50Ref.current?.setData(ma50 as LineData<Time>[]);
-
-    chartRef.current?.timeScale().fitContent();
+    lastCandlesRef.current = candles;
+    applyCandleData(candles, chartColors, candleSeriesRef.current, volSeriesRef.current, ma20Ref.current, ma50Ref.current, chartRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candles]);
 
+  useEffect(() => {
+    if (!chartRef.current || !candleSeriesRef.current) return;
+
+    chartRef.current.applyOptions({
+      layout: { textColor: chartColors.text },
+      grid: {
+        vertLines: { color: chartColors.grid },
+        horzLines: { color: chartColors.grid },
+      },
+      crosshair: {
+        vertLine: { color: chartColors.crosshair, labelBackgroundColor: chartColors.crosshair },
+        horzLine: { color: chartColors.crosshair, labelBackgroundColor: chartColors.crosshair },
+      },
+      rightPriceScale: { borderColor: chartColors.grid },
+      timeScale: { borderColor: chartColors.grid },
+    });
+
+    candleSeriesRef.current.applyOptions({
+      upColor: chartColors.up,
+      downColor: chartColors.down,
+      borderUpColor: chartColors.up,
+      borderDownColor: chartColors.down,
+      wickUpColor: chartColors.up,
+      wickDownColor: chartColors.down,
+    });
+
+    ma20Ref.current?.applyOptions({ color: chartColors.ma20 });
+    ma50Ref.current?.applyOptions({ color: chartColors.ma50 });
+
+    if (volSeriesRef.current && lastCandlesRef.current.length) {
+      const vdata: HistogramData<Time>[] = lastCandlesRef.current.map((c) => ({
+        time: c.time as Time,
+        value: c.volume,
+        color: c.close >= c.open ? chartColors.volUp : chartColors.volDown,
+      }));
+      volSeriesRef.current.setData(vdata);
+    }
+  }, [chartColors]);
+
   return <div ref={containerRef} className="w-full" style={{ height: `${height}px` }} />;
+}
+
+function applyCandleData(
+  candles: Candle[],
+  colors: ChartColors,
+  candleSeries: ISeriesApi<"Candlestick">,
+  volSeries: ISeriesApi<"Histogram">,
+  ma20Series: ISeriesApi<"Line"> | null,
+  ma50Series: ISeriesApi<"Line"> | null,
+  chart: IChartApi | null,
+) {
+  const cdata: CandlestickData<Time>[] = candles.map((c) => ({
+    time: c.time as Time,
+    open: c.open,
+    high: c.high,
+    low: c.low,
+    close: c.close,
+  }));
+
+  candleSeries.setData(cdata);
+
+  const vdata: HistogramData<Time>[] = candles.map((c) => ({
+    time: c.time as Time,
+    value: c.volume,
+    color: c.close >= c.open ? colors.volUp : colors.volDown,
+  }));
+
+  volSeries.setData(vdata);
+
+  const closes = candles.map((c) => c.close);
+  const times = candles.map((c) => c.time);
+
+  const ma20 = computeMA(closes, 20).map((v, i) => ({
+    time: times[i + 19] as Time,
+    value: v,
+  }));
+  ma20Series?.setData(ma20 as LineData<Time>[]);
+
+  const ma50 = computeMA(closes, 50).map((v, i) => ({
+    time: times[i + 49] as Time,
+    value: v,
+  }));
+  ma50Series?.setData(ma50 as LineData<Time>[]);
+
+  chart?.timeScale().fitContent();
 }
 
 function computeMA(values: number[], period: number): number[] {

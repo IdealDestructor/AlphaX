@@ -38,11 +38,11 @@ export function ColorSchemeSettings({ value, onChange }: Props) {
         >
           <span className="text-sm font-medium text-text">中国国内</span>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 font-mono text-xs text-danger">
-              <span className="h-2 w-2 rounded-full bg-danger" />涨 ↑ 红
+            <span className="flex items-center gap-1 font-mono text-xs text-[#ef4444]">
+              <span className="h-2 w-2 rounded-full bg-[#ef4444]" />涨 ↑ 红
             </span>
-            <span className="flex items-center gap-1 font-mono text-xs text-bullish">
-              <span className="h-2 w-2 rounded-full bg-bullish" />跌 ↓ 绿
+            <span className="flex items-center gap-1 font-mono text-xs text-[#22c55e]">
+              <span className="h-2 w-2 rounded-full bg-[#22c55e]" />跌 ↓ 绿
             </span>
           </div>
         </button>

@@ -24,6 +24,6 @@ export function useUpdateSettings() {
       const { fetchMockUpdateSettings } = await import("./mock");
       return fetchMockUpdateSettings(partial);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["settings"] }),
+    onSuccess: (result) => qc.setQueryData(["settings"], result),
   });
 }
