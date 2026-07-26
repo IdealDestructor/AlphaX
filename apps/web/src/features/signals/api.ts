@@ -1,17 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "@/lib/api/client";
+import { featureIsMock } from "@/lib/api/mock";
 import { fetchMockSignals } from "./mock";
 import type { SignalsPageData } from "./types";
 
-function fetchSignals(): Promise<SignalsPageData> {
-  return new Promise((r) => setTimeout(() => r(fetchMockSignals()), 600));
+async function fetchSignals(): Promise<SignalsPageData> {
+  if (featureIsMock("signals")) return fetchMockSignals();
+  return apiClient.get<SignalsPageData>("/signals");
 }
 
 export function useSignals() {
   return useQuery({
     queryKey: ["signals"],
     queryFn: fetchSignals,
-    staleTime: 15_000,
+    staleTime: 30_000,
   });
 }

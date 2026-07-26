@@ -66,12 +66,27 @@ pnpm dev
 | AI | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` | 服务端 only |
 | Billing | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | |
 | Public | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WS_URL` | |
+| Dev | `NEXT_PUBLIC_MOCK` | Mock 开关（见 [API_CLIENT.md](./API_CLIENT.md)）|
 
 禁止把服务端密钥放入 `NEXT_PUBLIC_*`。
 
 ---
 
-## 5. 日常开发工作流
+## 5. 前端 API 对接
+
+前端通过 `src/lib/api/client.ts` 统一调用后端 NestJS API。
+
+**核心规则：**
+- 每个 feature 的 `api.ts` 使用 `featureIsMock()` 判断走 mock 还是真实 API
+- 环境变量 `NEXT_PUBLIC_MOCK=1` 全局 mock，`NEXT_PUBLIC_MOCK=market` 局部 mock
+- 真实 API 走 `apiClient`（自动注入 JWT、401 刷新、超时控制）
+- API 响应格式遵循 `{ data, meta, error }` 包络约定
+
+详见 [API_CLIENT.md](./API_CLIENT.md)。
+
+---
+
+## 6. 日常开发工作流
 
 1. 从 `main` 拉功能分支：`feat/analysis-card`  
 2. 先写/更新 Zod schema（`packages/schemas`）  
@@ -81,7 +96,7 @@ pnpm dev
 
 ---
 
-## 6. 测试命令（约定）
+## 7. 测试命令（约定）
 
 ```bash
 pnpm lint
@@ -96,7 +111,7 @@ python -m tools.eval_prompts
 
 ---
 
-## 7. 调试技巧
+## 8. 调试技巧
 
 | 问题 | 建议 |
 |------|------|
@@ -107,7 +122,7 @@ python -m tools.eval_prompts
 
 ---
 
-## 8. 文档优先开发顺序
+## 9. 文档优先开发顺序
 
 新功能建议：
 
@@ -119,7 +134,7 @@ python -m tools.eval_prompts
 
 ---
 
-## 9. 代码生成（AI）提示词模板
+## 10. 代码生成（AI）提示词模板
 
 ```
 在 AlphaX 中实现 <功能>。
@@ -130,7 +145,7 @@ python -m tools.eval_prompts
 
 ---
 
-## 10. 发布前检查
+## 11. 发布前检查
 
 - [ ] migration 可回放  
 - [ ] OpenAPI / 客户端类型已更新  
@@ -148,3 +163,4 @@ python -m tools.eval_prompts
 - [CODING_RULES.md](./CODING_RULES.md)
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)
 - [OPS.md](./OPS.md)
+- [API_CLIENT.md](./API_CLIENT.md) — 前端 API 客户端实现

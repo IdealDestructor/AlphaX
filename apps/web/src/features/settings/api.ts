@@ -1,18 +1,21 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchMockSettings } from "./mock";
+import { apiClient } from "@/lib/api/client";
+import { featureIsMock } from "@/lib/api/mock";
+import { fetchMockSettings, fetchMockUpdateSettings } from "./mock";
 import type { SettingsPageData } from "./types";
 
-function fetchSettings(): Promise<SettingsPageData> {
-  return new Promise((r) => setTimeout(() => r(fetchMockSettings()), 400));
+async function fetchSettings(): Promise<SettingsPageData> {
+  if (featureIsMock("settings")) return fetchMockSettings();
+  return apiClient.get<SettingsPageData>("/me");
 }
 
 export function useSettings() {
   return useQuery({
     queryKey: ["settings"],
     queryFn: fetchSettings,
-    staleTime: 60_000,
+    staleTime: 300_000,
   });
 }
 
@@ -20,9 +23,8 @@ export function useUpdateSettings() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (partial: Partial<SettingsPageData>) => {
-      await new Promise((r) => setTimeout(r, 200));
-      const { fetchMockUpdateSettings } = await import("./mock");
-      return fetchMockUpdateSettings(partial);
+      if (featureIsMock("settings")) return fetchMockUpdateSettings(partial);
+      return apiClient.patch<SettingsPageData>("/me", partial);
     },
     onSuccess: (result) => qc.setQueryData(["settings"], result),
   });

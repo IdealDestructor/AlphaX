@@ -7,8 +7,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --filter @alphax/web dev",
-    "build": "pnpm --filter @alphax/web build",
+    "dev": "pnpm --parallel --filter @alphax/web --filter @alphax/api dev",
+    "dev:web": "pnpm --filter @alphax/web dev",
+    "dev:api": "pnpm --filter @alphax/api dev",
+    "build": "pnpm --filter @alphax/web build && pnpm --filter @alphax/api build",
+    "build:api": "pnpm --filter @alphax/api build",
     "start": "pnpm --filter @alphax/web start",
     "lint": "pnpm --filter @alphax/web lint",
     "typecheck": "pnpm --filter @alphax/web typecheck",

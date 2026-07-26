@@ -1,11 +1,14 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchMockAlerts } from "./mock";
-import type { AlertsPageData, CreateAlertPayload, UpdateAlertPayload } from "./types";
+import { apiClient } from "@/lib/api/client";
+import { featureIsMock } from "@/lib/api/mock";
+import { fetchMockAlerts, fetchMockCreateAlert as mockCreate, fetchMockUpdateAlert as mockUpdate } from "./mock";
+import type { AlertsPageData, PriceAlert, CreateAlertPayload, UpdateAlertPayload } from "./types";
 
-function fetchAlerts(): Promise<AlertsPageData> {
-  return new Promise((r) => setTimeout(() => r(fetchMockAlerts()), 400));
+async function fetchAlerts(): Promise<AlertsPageData> {
+  if (featureIsMock("alerts")) return fetchMockAlerts();
+  return apiClient.get<AlertsPageData>("/alerts");
 }
 
 export function useAlerts() {
@@ -19,10 +22,9 @@ export function useAlerts() {
 export function useCreateAlert() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (_payload: CreateAlertPayload) => {
-      await new Promise((r) => setTimeout(r, 300));
-      const { fetchMockCreateAlert } = await import("./mock");
-      return fetchMockCreateAlert();
+    mutationFn: async (payload: CreateAlertPayload) => {
+      if (featureIsMock("alerts")) return mockCreate();
+      return apiClient.post<PriceAlert>("/alerts", payload);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["alerts"] }),
   });
@@ -32,9 +34,9 @@ export function useUpdateAlert() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: UpdateAlertPayload) => {
-      await new Promise((r) => setTimeout(r, 300));
-      const { fetchMockUpdateAlert } = await import("./mock");
-      return fetchMockUpdateAlert(payload.id);
+      if (featureIsMock("alerts")) return mockUpdate(payload.id);
+      const { id, ...body } = payload;
+      return apiClient.patch<PriceAlert>(`/alerts/${id}`, body);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["alerts"] }),
   });
@@ -44,8 +46,8 @@ export function useDeleteAlert() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await new Promise((r) => setTimeout(r, 200));
-      return id;
+      if (featureIsMock("alerts")) return id;
+      return apiClient.delete<{ id: string }>(`/alerts/${id}`);
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["alerts"] }),
   });

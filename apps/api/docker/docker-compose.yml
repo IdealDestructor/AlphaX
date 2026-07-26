@@ -1,0 +1,38 @@
+name: alphax
+
+services:
+  postgres:
+    image: alphax-postgres:16-alpine
+    container_name: alphax-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: alphax
+      POSTGRES_USER: alphax
+      POSTGRES_PASSWORD: alphax_dev
+    volumes:
+      - alphax_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alphax"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: alphax-redis:7-alpine
+    container_name: alphax-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - alphax_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  alphax_pgdata:
+    name: alphax_pgdata
+  alphax_redis_data:
+    name: alphax_redis_data

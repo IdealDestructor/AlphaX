@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  pro
+  enterprise
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum AlertType {
+  price
+  ai
+  news
+  indicator
+}
+
+enum AlertStatus {
+  active
+  paused
+  triggered
+  expired
+}
+
+enum SignalStatus {
+  open
+  hit_tp
+  hit_sl
+  expired
+  canceled
+}
+
+model User {
+  id              String   @id @default(uuid()) @db.Uuid
+  email           String   @unique
+  passwordHash    String?  @map("password_hash")
+  displayName     String?  @map("display_name")
+  avatarUrl       String?  @map("avatar_url")
+  role            Role     @default(user)
+  plan            Plan     @default(free)
+  locale          String   @default("zh-CN")
+  timezone        String   @default("UTC")
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at")
+
+  watchlists     Watchlist[]
+  alerts         Alert[]
+  chatSessions   ChatSession[]
+  apiKeys        ApiKey[]
+  journals       Journal[]
+  oauthAccounts  OAuthAccount[]
+  subscriptions  Subscription[]
+  entitlements   Entitlement[]
+  refreshTokens  RefreshToken[]
+
+  @@map("users")
+}
+
+model OAuthAccount {
+  id                 String @id @default(uuid()) @db.Uuid
+  userId             String @map("user_id") @db.Uuid
+  provider           String
+  providerAccountId  String @map("provider_account_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Subscription {
+  id                      String   @id @default(uuid()) @db.Uuid
+  userId                  String   @map("user_id") @db.Uuid
+  provider                String   @default("stripe")
+  providerSubscriptionId  String   @unique @map("provider_subscription_id")
+  plan                    Plan
+  status                  String   @default("active")
+  currentPeriodEnd        DateTime? @map("current_period_end")
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Entitlement {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  featureKey String   @map("feature_key")
+  value      Json
+  source     String   @default("plan")
+  expiresAt  DateTime? @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, featureKey])
+  @@map("entitlements")
+}
+
+model Symbol {
+  id         String  @id @default(uuid()) @db.Uuid
+  code       String  @unique
+  name       String
+  assetClass String  @map("asset_class")
+  tickSize   Decimal? @map("tick_size")
+  isActive   Boolean @default(true) @map("is_active")
+
+  analyses    AiAnalysis[]
+  signals     Signal[]
+  forecasts   Forecast[]
+  watchlists  Watchlist[]
+  alerts      Alert[]
+  journals    Journal[]
+
+  @@map("symbols")
+}
+
+model Watchlist {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  symbolId  String   @map("symbol_id") @db.Uuid
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol Symbol @relation(fields: [symbolId], references: [id])
+
+  @@unique([userId, symbolId])
+  @@index([userId])
+  @@map("watchlists")
+}
+
+model AiAnalysis {
+  id           String   @id @default(uuid()) @db.Uuid
+  symbolId     String   @map("symbol_id") @db.Uuid
+  timeframe    String
+  trend        String
+  action       String
+  confidence   Decimal  @db.Decimal(5, 4)
+  entry        Decimal?
+  stopLoss     Decimal? @map("stop_loss")
+  takeProfit   Decimal? @map("take_profit")
+  riskLevel    String   @map("risk_level")
+  summary      String?
+  reasons      Json
+  evidence     Json
+  modelVersion Json?    @map("model_versions")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  symbol Symbol @relation(fields: [symbolId], references: [id])
+
+  @@index([symbolId, timeframe, createdAt(sort: Desc)])
+  @@map("ai_analyses")
+}
+
+model Signal {
+  id         String       @id @default(uuid()) @db.Uuid
+  symbolId   String       @map("symbol_id") @db.Uuid
+  action     String
+  price      Decimal?
+  entry      Decimal?
+  tp         Decimal?
+  sl         Decimal?
+  confidence Decimal      @db.Decimal(5, 4)
+  status     SignalStatus @default(open)
+  timeframe  String?
+  createdAt  DateTime     @default(now()) @map("created_at")
+  closedAt   DateTime?    @map("closed_at")
+  outcome    Json?
+
+  symbol Symbol @relation(fields: [symbolId], references: [id])
+
+  @@index([symbolId, createdAt(sort: Desc)])
+  @@index([status])
+  @@map("signals")
+}
+
+model Forecast {
+  id         String   @id @default(uuid()) @db.Uuid
+  symbolId   String   @map("symbol_id") @db.Uuid
+  horizon    String
+  pUp        Decimal? @map("p_up") @db.Decimal(5, 4)
+  pDown      Decimal? @map("p_down") @db.Decimal(5, 4)
+  pRange     Decimal? @map("p_range") @db.Decimal(5, 4)
+  medianPrice Decimal? @map("median_price")
+  lowBound   Decimal? @map("low_bound")
+  highBound  Decimal? @map("high_bound")
+  confidence Decimal? @db.Decimal(5, 4)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  symbol Symbol @relation(fields: [symbolId], references: [id])
+
+  @@index([symbolId, horizon, createdAt(sort: Desc)])
+  @@map("forecasts")
+}
+
+model News {
+  id              String   @id @default(uuid()) @db.Uuid
+  externalId      String?  @map("external_id")
+  source          String
+  title           String
+  url             String?
+  summary         String?
+  bodyText        String?  @map("body_text")
+  impact          String?
+  impactConfidence Decimal? @map("impact_confidence") @db.Decimal(5, 4)
+  expectedDuration String? @map("expected_duration")
+  symbols         String[]
+  publishedAt     DateTime @map("published_at")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([source, externalId])
+  @@index([publishedAt(sort: Desc)])
+  @@map("news")
+}
+
+model Alert {
+  id              String      @id @default(uuid()) @db.Uuid
+  userId          String      @map("user_id") @db.Uuid
+  type            AlertType
+  symbolId        String?     @map("symbol_id") @db.Uuid
+  condition       Json
+  channels        String[]
+  status          AlertStatus @default(active)
+  note            String?
+  lastTriggeredAt DateTime?   @map("last_triggered_at")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol Symbol? @relation(fields: [symbolId], references: [id])
+
+  @@index([userId, status])
+  @@index([type, status])
+  @@map("alerts")
+}
+
+model ChatSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String   @default("新对话")
+  symbol    String   @default("XAUUSD")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  role      String
+  content   String
+  citations Json?
+  tokenUsage Json?   @map("token_usage")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+  @@map("chat_messages")
+}
+
+model Journal {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  symbolId   String    @map("symbol_id") @db.Uuid
+  side       String
+  entryPrice Decimal?  @map("entry_price")
+  exitPrice  Decimal?  @map("exit_price")
+  qty        Decimal?
+  profit     Decimal?
+  note       String?
+  tags       String[]
+  openedAt   DateTime? @map("opened_at")
+  closedAt   DateTime? @map("closed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol Symbol @relation(fields: [symbolId], references: [id])
+
+  @@index([userId, openedAt(sort: Desc)])
+  @@map("journals")
+}
+
+model ApiKey {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  name       String
+  keyPrefix  String    @map("key_prefix")
+  keyHash    String    @map("key_hash")
+  scopes     String[]
+  lastUsedAt DateTime? @map("last_used_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
