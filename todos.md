@@ -23,8 +23,40 @@
 | Chat | `/api/v1/chat` |
 | User | `/api/v1/user` |
 
+## 已完成改进 (2026-07-26)
+
+### 数据层修复
+- [x] **News Service 重构** — 从内存生成改为 Prisma DB 查询，支持按 symbol 过滤和分页
+- [x] **Analysis Service 持久化** — `generateAndSave()` 现在将分析结果保存到数据库
+- [x] **Forecast Service 持久化** — `generateAndSave()` 现在将预测结果保存到数据库
+
+### 新模块
+- [x] **Journal 模块** — 完整的 CRUD + 统计数据 (`/api/v1/journal`)
+- [x] **Tools 模块** — Position Calculator (`/api/v1/tools/position-calculator`)
+
+### Seed 数据增强
+- [x] 15 条新闻、8 个信号、6 条 AI 分析、5 条预测、4 条日志、4 个自选
+- [x] Demo 用户: `demo@alphax.com` / `demo123456`
+
+### 路由总览
+
+| 模块 | 路由前缀 | 状态 |
+|------|---------|------|
+| Auth | `/api/v1/auth` | ✅ |
+| Market | `/api/v1/market` | ✅ |
+| Analysis | `/api/v1/analysis` | ✅ (DB 持久化) |
+| Signals | `/api/v1/signals` | ✅ (DB 读取) |
+| Forecast | `/api/v1/forecast` | ✅ (DB 持久化) |
+| News | `/api/v1/news` | ✅ (DB 查询) |
+| Alerts | `/api/v1/alerts` | ✅ |
+| Chat | `/api/v1/chat` | ✅ |
+| User | `/api/v1/user` | ✅ |
+| Dashboard | `/api/v1/dashboard` | ✅ |
+| Journal | `/api/v1/journal` | ✅ (新增) |
+| Tools | `/api/v1/tools` | ✅ (新增) |
+
 ## 当前缺失/待办
 
 - [ ] Redis 容器未启动（redis:7-alpine 镜像下载超时，后续需要时再启动）
-- [ ] 可能需要运行的 seed 数据：`pnpm db:seed`
 - [ ] 前端 `apps/web` 的启动尚未验证
+- [ ] Python AI 服务尚未实现
