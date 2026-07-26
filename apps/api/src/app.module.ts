@@ -11,6 +11,8 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { UserModule } from './modules/user/user.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { JournalModule } from './modules/journal/journal.module';
+import { ToolsModule } from './modules/tools/tools.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
     ChatModule,
     UserModule,
     DashboardModule,
+    JournalModule,
+    ToolsModule,
   ],
 })
 export class AppModule {}

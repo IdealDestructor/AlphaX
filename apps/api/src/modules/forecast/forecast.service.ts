@@ -15,21 +15,10 @@ export class ForecastService {
     });
 
     if (existing) {
-      return {
-        symbol,
-        horizon,
-        pUp: existing.pUp?.toNumber(),
-        pDown: existing.pDown?.toNumber(),
-        pRange: existing.pRange?.toNumber(),
-        medianPrice: existing.medianPrice?.toNumber(),
-        lowBound: existing.lowBound?.toNumber(),
-        highBound: existing.highBound?.toNumber(),
-        confidence: existing.confidence?.toNumber(),
-        createdAt: existing.createdAt.toISOString(),
-      };
+      return this.formatForecast(existing, symbol);
     }
 
-    return this.generateForecast(symbol, horizon);
+    return this.generateAndSave(sym, symbol, horizon);
   }
 
   async getForecasts(symbol?: string) {
@@ -59,25 +48,44 @@ export class ForecastService {
     }));
   }
 
-  private generateForecast(symbol: string, horizon: string) {
-    const basePrice = symbol === 'XAUUSD' ? 2350 : 100;
-    const volatility = horizon === '1d' ? 0.02 : horizon === '1w' ? 0.05 : 0.1;
+  private formatForecast(f: any, symbol: string) {
+    return {
+      symbol,
+      horizon: f.horizon,
+      pUp: f.pUp?.toNumber(),
+      pDown: f.pDown?.toNumber(),
+      pRange: f.pRange?.toNumber(),
+      medianPrice: f.medianPrice?.toNumber(),
+      lowBound: f.lowBound?.toNumber(),
+      highBound: f.highBound?.toNumber(),
+      confidence: f.confidence?.toNumber(),
+      createdAt: f.createdAt.toISOString(),
+    };
+  }
+
+  private async generateAndSave(sym: any, symbol: string, horizon: string) {
+    const basePrice = symbol === 'XAUUSD' ? 2350 : symbol === 'BTCUSD' ? 67000 : symbol === 'DXY' ? 104.5 : 100;
+    const volatilityMap: Record<string, number> = { '1d': 0.02, '1w': 0.05, '1m': 0.1, '3m': 0.18 };
+    const volatility = volatilityMap[horizon] || 0.05;
     const pUp = 0.3 + Math.random() * 0.5;
     const pDown = 0.3 + Math.random() * 0.5;
     const median = basePrice * (1 + (Math.random() - 0.5) * volatility);
     const halfRange = basePrice * volatility * 0.8;
 
-    return {
-      symbol,
-      horizon,
-      pUp: Math.round(pUp * 10000) / 10000,
-      pDown: Math.round(pDown * 10000) / 10000,
-      pRange: Math.round((1 - Math.abs(pUp - pDown)) * 10000) / 10000,
-      medianPrice: Math.round(median * 100) / 100,
-      lowBound: Math.round((median - halfRange) * 100) / 100,
-      highBound: Math.round((median + halfRange) * 100) / 100,
-      confidence: Math.round((0.5 + Math.random() * 0.4) * 10000) / 10000,
-      createdAt: new Date().toISOString(),
-    };
+    const saved = await this.prisma.forecast.create({
+      data: {
+        symbolId: sym.id,
+        horizon,
+        pUp: Math.round(pUp * 10000) / 10000,
+        pDown: Math.round(pDown * 10000) / 10000,
+        pRange: Math.round((1 - Math.abs(pUp - pDown)) * 10000) / 10000,
+        medianPrice: Math.round(median * 100) / 100,
+        lowBound: Math.round((median - halfRange) * 100) / 100,
+        highBound: Math.round((median + halfRange) * 100) / 100,
+        confidence: Math.round((0.5 + Math.random() * 0.4) * 10000) / 10000,
+      },
+    });
+
+    return this.formatForecast(saved, symbol);
   }
 }
