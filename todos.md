@@ -60,3 +60,39 @@
 - [ ] Redis 容器未启动（redis:7-alpine 镜像下载超时，后续需要时再启动）
 - [ ] 前端 `apps/web` 的启动尚未验证
 - [ ] Python AI 服务尚未实现
+
+---
+
+## API 对接清单（未处理项）
+
+> 来源：对照前端 `features/*/api.ts`、后端 NestJS controllers、`docs/API_SPEC.md` / `docs/API_CLIENT.md` 梳理。
+> 已修复：✅ 路径不匹配 3 处（`market`、`forecast`、`chat` 已改为调用真实后端路由）。
+
+### ✅ 已修复（本轮）
+- [x] **Market 路径** — `GET /market/{symbol}` → 聚合 `/market/symbols` + `/market/quotes` + `/market/candles` + `/market/indicators` 并映射字段（`apps/web/src/features/market/api.ts`）
+- [x] **Forecast 路径** — `GET /forecast/{symbol}` → `GET /forecast/latest?symbol=&horizon=`（`apps/web/src/features/forecast/api.ts`）
+- [x] **Chat 发消息路径** — `POST /chat/sessions/{id}/messages` → `POST /chat/messages`（body `{content, sessionId}`），并加入乐观更新（`apps/web/src/features/chat/api.ts`）
+
+### 🔲 后端已有、前端尚未消费
+- [ ] `/analysis/{symbol}/history` — 前端 `AnalysisHistory` 组件未接入该端点
+- [ ] `/news`, `/news/{id}` — 后端 News 已 DB 持久化，前端 news 仍走 Next.js `/api/news` RSS 代理，未切到后端 `/news`
+- [ ] `/journal` 全套 CRUD + `/journal/stats` — 后端已实现，前端无 journal 页面/feature
+- [ ] `/tools/position-calculator` — 后端已实现，前端无 tools 页面/feature
+- [ ] `/user/profile`、`/user/password`、`/user/watchlist`、`/user/settings` — 后端已实现，前端 settings 走 `/me`，user 系列端点无消费
+- [ ] `/chat/stream`（SSE）— 后端已实现流式，前端 chat 仍用非流式 POST，未接入 SSE
+- [ ] `/auth/register` — 后端已实现，前端无注册流程页面
+- [ ] `/auth/oauth/{provider}` — 前端 `loginWithOAuth` 硬编码跳转，但后端控制器无此路由，需补后端
+- [ ] `/market/symbols`、`/market/quotes`、`/market/candles`、`/market/indicators` 子端点 — 已供 market 聚合使用，但无单独页面/直接消费
+
+### 🔲 API_SPEC 已规划、后端尚未实现
+- [ ] `/sentiment`, `/sentiment/{symbol}` — 后端无 sentiment 模块
+- [ ] `/smart-money`, `/smart-money/history` — 后端无
+- [ ] `/billing/plans`、`/billing/checkout`、`/billing/webhook`、`/billing/portal` — 后端无 billing 模块
+- [ ] `/watchlist`（spec 独立路径）— 后端只挂在 `/user/watchlist` 下
+- [ ] `/enterprise/api-keys`、`/admin/*` — 后端无
+- [ ] `POST /analysis/{symbol}/refresh` — 后端无
+- [ ] WebSocket `/v1/ws`（行情/分析推送）— 后端无 WS 网关，前端也无 WS 客户端
+
+### 🔲 基础设施 / 服务
+- [ ] 启动 Redis（后端限流/缓存依赖）
+- [ ] 实现 `apps/ai` Python AI 服务（chat 的 `generateReply` / AI 分析目前是后端 mock/fallback）
