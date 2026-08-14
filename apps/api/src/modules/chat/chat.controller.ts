@@ -59,14 +59,15 @@ export class ChatController {
       sessionId = session.id;
     }
 
-    const session = await this.chat.getSessionById(userId, sessionId);
-    await this.chat.addMessage(sessionId, 'user', dto.content);
+    const activeId: string = sessionId as string;
+    const session = await this.chat.getSessionById(userId, activeId);
+    await this.chat.addMessage(activeId, 'user', dto.content);
 
-    const aiReply = await this.chat.generateReply(sessionId, dto.content, session.symbol);
+    const aiReply = await this.chat.generateReply(activeId, dto.content, session.symbol);
 
     res.json({
       data: {
-        id: sessionId,
+        id: activeId,
         role: 'assistant',
         content: aiReply,
         createdAt: new Date().toISOString(),
@@ -83,8 +84,9 @@ export class ChatController {
       sessionId = session.id;
     }
 
-    const session = await this.chat.getSessionById(userId, sessionId);
-    await this.chat.addMessage(sessionId, 'user', dto.content);
+    const activeId: string = sessionId as string;
+    const session = await this.chat.getSessionById(userId, activeId);
+    await this.chat.addMessage(activeId, 'user', dto.content);
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -95,12 +97,12 @@ export class ChatController {
 
     for (const token of tokens) {
       fullContent += token;
-      res.write(`data: ${JSON.stringify({ token, sessionId })}\n\n`);
+      res.write(`data: ${JSON.stringify({ token, sessionId: activeId })}\n\n`);
       await new Promise((r) => setTimeout(r, 50));
     }
 
-    await this.chat.addMessage(sessionId, 'assistant', fullContent);
-    res.write(`data: ${JSON.stringify({ done: true, sessionId })}\n\n`);
+    await this.chat.addMessage(activeId, 'assistant', fullContent);
+    res.write(`data: ${JSON.stringify({ done: true, sessionId: activeId })}\n\n`);
     res.end();
   }
 }

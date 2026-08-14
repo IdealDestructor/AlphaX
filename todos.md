@@ -63,6 +63,36 @@
 
 ---
 
+## API 补齐（2026-08-14 本轮）
+
+### 后端新增路由（已实现并通过 `nest build` / `tsc`）
+| 模块 | 路由前缀 | 说明 |
+|------|---------|------|
+| Sentiment | `/api/v1/sentiment`、`/api/v1/sentiment/{symbol}` | 由 News 数据聚合 + 稳定哈希生成；无独立 DB 表 |
+| Smart Money | `/api/v1/smart-money`、`/api/v1/smart-money/history`、`/api/v1/smart-money/{symbol}` | 确定性 ETF/COT/央行购金快照 + 历史序列 |
+| Billing | `/api/v1/billing/plans`、`/billing/checkout`、`/billing/portal` | Plans 静态；checkout/portal 为占位 URL（Stripe 待配置） |
+| Watchlist | `/api/v1/watchlist`（GET/POST/DELETE `:symbol`） | spec 独立路径，复用同一张表 |
+| Enterprise | `/api/v1/enterprise/api-keys`（GET/POST/DELETE `:id`） | API 密钥：创建时返回一次明文，落库仅存 SHA-256 |
+| Signals | `/api/v1/signals/stats` | 状态/方向聚合 + 胜率 |
+| Analysis | `POST /api/v1/analysis/{symbol}/refresh` | 强制触发决策管线并持久化（JWT 保护） |
+| Auth | `GET /api/v1/auth/oauth/{provider}`、`/auth/oauth/{provider}/callback` | OAuth 跳转/回调占位（Google/GitHub） |
+
+### 前端已接入（typecheck / eslint 通过）
+- [x] **News** — `features/news/api.ts` 改为调用后端 `/news`（含字段映射：category/tone/impact/confidence/bodyText），失败时回退 mock
+- [x] **Analysis** — `features/analysis/api.ts` 组装 `/analysis/{symbol}`(current) + `/analysis/{symbol}/history` + `/signals/stats`(accuracy)；新增 `useRefreshAnalysis` 调用 `POST /analysis/{symbol}/refresh`，分析页“刷新分析”按钮已接入
+- [x] **Auth** — `AuthProvider` 新增 `register()`（`POST /auth/register`）；修复 `loginWithOAuth` 的 base URL bug（缺少 `/api`），统一走 `apiUrl()`
+- [x] **Chat SSE** — `features/chat/api.ts` 新增 `useSendMessageStream` + `streamChatReply`（读取 `POST /chat/stream` SSE 分块），`ChatDrawer` 在非 mock 下使用流式发送
+
+### 尚缺（已记录，见 API_CLIENT/API_SPEC + DEVELOPMENT_GUIDE §13）
+- [ ] WebSocket `/v1/ws` 网关（需安装 `@nestjs/websockets`/`ws`，沙箱无法写 pnpm store，代码未落地）
+- [ ] `apps/ai` Python AI 服务（chat `generateReply` 目前为后端 mock/fallback）
+- [ ] `/user/*`（profile/password/watchlist/settings）前端尚未消费（`/me` 已覆盖 profile+prefs）
+- [ ] Stripe 真实 checkout/webhook/portal（当前为占位 URL）
+- [ ] `/admin/*` 管理端点
+- [ ] Redis（限流/缓存）
+
+---
+
 ## API 对接清单（未处理项）
 
 > 来源：对照前端 `features/*/api.ts`、后端 NestJS controllers、`docs/API_SPEC.md` / `docs/API_CLIENT.md` 梳理。

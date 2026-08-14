@@ -9,6 +9,10 @@
 
 > 实现时以生成的 `openapi.yaml` 为准；本文是契约草案。
 
+> **实现进度标识（2026-08-14 同步 backend `apps/api`）：**
+> - ✅ = 后端已实现路由；✅️(web) = 前端已接入（见 [API_CLIENT.md](./API_CLIENT.md)）
+> - 🔲 = 契约已规划、后端尚未实现
+
 ---
 
 ## 1. 通用约定
@@ -82,12 +86,12 @@
 
 | Method | Path | Auth | 说明 |
 |--------|------|------|------|
-| POST | `/auth/register` | Public | Email 注册 |
-| POST | `/auth/login` | Public | 登录，返回 access/refresh |
-| POST | `/auth/refresh` | Public | 刷新令牌 |
-| POST | `/auth/logout` | User | 吊销 refresh |
-| GET | `/auth/oauth/{provider}` | Public | OAuth 跳转 |
-| GET | `/auth/oauth/{provider}/callback` | Public | 回调 |
+| POST | `/auth/register` | Public | Email 注册 ✅(web) |
+| POST | `/auth/login` | Public | 登录，返回 access/refresh ✅ |
+| POST | `/auth/refresh` | Public | 刷新令牌 ✅ |
+| POST | `/auth/logout` | User | 吊销 refresh ✅ |
+| GET | `/auth/oauth/{provider}` | Public | OAuth 跳转 ✅ |
+| GET | `/auth/oauth/{provider}/callback` | Public | 回调（占位，未交换 code→token）✅ |
 
 **Login 响应示例：**
 
@@ -111,10 +115,10 @@
 
 | Method | Path | Auth | 说明 |
 |--------|------|------|------|
-| GET | `/market/symbols` | Public | 品种列表 |
-| GET | `/market/{symbol}/quote` | Public | 最新报价 |
-| GET | `/market/{symbol}/candles` | Public/User | K 线历史 |
-| GET | `/market/{symbol}/indicators` | User | 指标快照 |
+| GET | `/market/symbols` | Public | 品种列表 ✅ |
+| GET | `/market/{symbol}/quote` | Public | 最新报价 ✅ |
+| GET | `/market/{symbol}/candles` | Public/User | K 线历史 ✅ |
+| GET | `/market/{symbol}/indicators` | User | 指标快照 ✅ |
 
 **Candles Query：**
 
@@ -138,9 +142,9 @@ GET /market/XAUUSD/candles?timeframe=1h&limit=500&to=2026-07-20T00:00:00Z
 
 | Method | Path | Auth | 说明 |
 |--------|------|------|------|
-| GET | `/analysis/{symbol}` | Public* | 最新分析；字段按 plan 脱敏 |
-| GET | `/analysis/{symbol}/history` | User | 历史分析 |
-| POST | `/analysis/{symbol}/refresh` | Pro | 手动触发（限流） |
+| GET | `/analysis/{symbol}` | Public* | 最新分析 ✅；字段按 plan 脱敏 |
+| GET | `/analysis/{symbol}/history` | User | 历史分析 ✅(web) |
+| POST | `/analysis/{symbol}/refresh` | Pro | 手动触发（限流）✅ |
 
 \* Guest 仅 `trend/confidence/summary` 摘要。
 
@@ -177,31 +181,31 @@ GET /market/XAUUSD/candles?timeframe=1h&limit=500&to=2026-07-20T00:00:00Z
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET | `/signals` | User |
-| GET | `/signals/{id}` | User |
-| GET | `/signals/stats` | Pro |
-| GET | `/forecast/{symbol}` | Pro |
-| GET | `/forecast/{symbol}/history` | Pro |
+| GET | `/signals` | User ✅ |
+| GET | `/signals/{id}` | User ✅ |
+| GET | `/signals/stats` | Pro ✅ |
+| GET | `/forecast/{symbol}` | Pro ✅ |
+| GET | `/forecast/{symbol}/history` | Pro 🔲 |
 
 ### 2.5 News & Sentiment & Smart Money
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET | `/news` | Public |
-| GET | `/news/{id}` | Public |
-| GET | `/sentiment` | User（完整 Pro） |
-| GET | `/sentiment/{symbol}` | User |
-| GET | `/smart-money` | Pro |
-| GET | `/smart-money/history` | Pro |
+| GET | `/news` | Public ✅(web) |
+| GET | `/news/{id}` | Public ✅ |
+| GET | `/sentiment` | User（完整 Pro）✅ |
+| GET | `/sentiment/{symbol}` | User ✅ |
+| GET | `/smart-money` | Pro ✅ |
+| GET | `/smart-money/history` | Pro ✅ |
 
 ### 2.6 Chat
 
 | Method | Path | Auth | 说明 |
 |--------|------|------|------|
-| GET | `/chat/sessions` | User | 会话列表 |
-| POST | `/chat/sessions` | User | 新建会话 |
-| GET | `/chat/sessions/{id}/messages` | Owner | 历史消息 |
-| POST | `/chat/sessions/{id}/messages` | Owner | 发送；支持 SSE |
+| GET | `/chat/sessions` | User | 会话列表 ✅ |
+| POST | `/chat/sessions` | User | 新建会话 ✅ |
+| GET | `/chat/sessions/{id}/messages` | Owner | 历史消息 ⚠️（后端数据已有，前端经 `/chat/sessions` 合并返回） |
+| POST | `/chat/sessions/{id}/messages` | Owner | 发送；支持 SSE ✅（前端实际调用 `/chat/stream`） |
 
 **Streaming（SSE）：**
 
@@ -231,10 +235,10 @@ data: {"type":"done","message_id":"uuid"}
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET | `/watchlist` | User |
-| POST | `/watchlist` | User |
-| DELETE | `/watchlist/{symbol}` | User |
-| PATCH | `/watchlist/reorder` | User |
+| GET | `/watchlist` | User ✅ |
+| POST | `/watchlist` | User ✅ |
+| DELETE | `/watchlist/{symbol}` | User ✅ |
+| PATCH | `/watchlist/reorder` | User 🔲 |
 
 ```json
 // POST /watchlist
@@ -263,9 +267,9 @@ data: {"type":"done","message_id":"uuid"}
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET/POST | `/journal` | Pro |
-| GET/PATCH/DELETE | `/journal/{id}` | Owner |
-| POST | `/tools/position-calculator` | Pro |
+| GET/POST | `/journal` | Pro ✅ |
+| GET/PATCH/DELETE | `/journal/{id}` | Owner ✅ |
+| POST | `/tools/position-calculator` | Pro ✅ |
 
 ```json
 // POST /tools/position-calculator
@@ -282,25 +286,27 @@ data: {"type":"done","message_id":"uuid"}
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET | `/me` | User |
-| PATCH | `/me` | User |
-| GET | `/billing/plans` | Public |
-| POST | `/billing/checkout` | User |
-| POST | `/billing/webhook` | Stripe Sig |
-| GET | `/billing/portal` | User |
+| GET | `/me` | User ✅ |
+| PATCH | `/me` | User ✅ |
+| GET | `/billing/plans` | Public ✅ |
+| POST | `/billing/checkout` | User ✅（Stripe 占位，未真实下单） |
+| POST | `/billing/webhook` | Stripe Sig 🔲 |
+| GET | `/billing/portal` | User ✅（占位 URL） |
 
 ### 2.11 Enterprise / Admin
 
 | Method | Path | Auth |
 |--------|------|------|
-| GET/POST | `/enterprise/api-keys` | Enterprise |
-| DELETE | `/enterprise/api-keys/{id}` | Enterprise |
-| GET | `/admin/users` | Admin |
-| POST | `/admin/feature-flags` | Admin |
+| GET/POST | `/enterprise/api-keys` | Enterprise ✅ |
+| DELETE | `/enterprise/api-keys/{id}` | Enterprise ✅ |
+| GET | `/admin/users` | Admin 🔲 |
+| POST | `/admin/feature-flags` | Admin 🔲 |
 
 ---
 
 ## 3. WebSocket Protocol
+
+> 🔲 **未实现**：需要 `@nestjs/websockets` + `@nestjs/platform-ws`（或 `ws` 网关）。当前仓库未安装这些依赖（沙箱无法写入 pnpm store），因此暂以 REST（`/market/...`、SSE `/chat/stream`）替代实时推送。接入清单见 `todos.md` 与本文件 §3。
 
 ### 3.1 连接
 

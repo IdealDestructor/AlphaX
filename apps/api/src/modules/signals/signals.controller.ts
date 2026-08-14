@@ -10,6 +10,11 @@ export class SignalsController {
     return this.signals.getSignals(symbol, limit || 50);
   }
 
+  @Get('stats')
+  getStats() {
+    return this.signals.getStats();
+  }
+
   @Get(':id')
   getSignalById(@Param('id') id: string) {
     return this.signals.getSignalById(id);

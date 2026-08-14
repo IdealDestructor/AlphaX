@@ -69,10 +69,13 @@ NEXT_PUBLIC_MOCK=0          → all real API (default for production)
 |---------|----------|--------|-------|
 | Dashboard | `/dashboard/{symbol}` | GET | BFF aggregate |
 | Market | `/market/{symbol}` | GET | candles + quote + indicators |
-| Analysis | `/analysis/{symbol}` | GET | latest + history |
+| Analysis | `/analysis/{symbol}` | GET | latest analysis |
+| | `/analysis/{symbol}/history` | GET | history (assembled into page data) |
+| | `/analysis/{symbol}/refresh` | POST | force regenerate + persist |
+| | `/signals/stats` | GET | accuracy aggregate for analysis page |
 | Signals | `/signals` | GET | list + stats |
 | Forecast | `/forecast/{symbol}` | GET | probability forecast |
-| News | `/api/news` | GET | Next.js API route (RSS proxy) |
+| News | `/news` | GET | backend DB (mapped); RSS proxy kept as fallback |
 | Alerts | `/alerts` | GET | list |
 | | `/alerts` | POST | create |
 | | `/alerts/{id}` | PATCH | update |
@@ -80,8 +83,11 @@ NEXT_PUBLIC_MOCK=0          → all real API (default for production)
 | Settings | `/me` | GET | profile + prefs |
 | | `/me` | PATCH | update prefs |
 | Chat | `/chat/sessions` | GET | session list |
-| | `/chat/sessions/{id}/messages` | POST | send message |
+| | `/chat/messages` | POST | non-streaming send (mock mode) |
+| | `/chat/stream` | POST | SSE streaming send (real mode) |
 | Auth | `/auth/login` | POST | email login |
+| | `/auth/register` | POST | email signup (AuthProvider.register) |
+| | `/auth/oauth/{provider}` | GET | OAuth redirect (via apiUrl) |
 | | `/auth/refresh` | POST | token refresh |
 
 ---
@@ -99,6 +105,13 @@ NEXT_PUBLIC_MOCK=0          → all real API (default for production)
 | `useAlerts` | 30s | — | User-specific |
 | `useSettings` | 300s | — | Very low frequency |
 | `useChatPageData` | 30s | — | Session list |
+
+### Chat streaming
+
+Real (non-mock) chat uses `useSendMessageStream`, which POSTs to `/chat/stream`
+and consumes the SSE body (`data: {"token":"…"}` frames) token-by-token,
+updating the assistant message in the React Query cache incrementally. Mock mode
+keeps the instant non-streaming path (`useSendMessage`).
 
 ---
 

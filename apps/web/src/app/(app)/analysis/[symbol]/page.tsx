@@ -8,7 +8,8 @@ import { ErrorState, SkeletonPanel } from "@/components/state/States";
 import { AnalysisOverview } from "@/features/analysis/components/AnalysisOverview";
 import { EvidenceChainDetail } from "@/features/analysis/components/EvidenceChainDetail";
 import { AnalysisHistory } from "@/features/analysis/components/AnalysisHistory";
-import { useAnalysis } from "@/features/analysis/api";
+import { useAnalysis, useRefreshAnalysis } from "@/features/analysis/api";
+import { featureIsMock } from "@/lib/api/mock";
 import { useSymbol } from "@/lib/symbol-context";
 import type { Timeframe } from "@/features/analysis/types";
 import { getAssetInfo } from "@/lib/assets";
@@ -38,6 +39,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
   const [tf, setTf] = useState<Timeframe>("4H");
   const [tab, setTab] = useState<string>("overview");
   const { data, isLoading, isError, refetch } = useAnalysis(symbol);
+  const refreshMutation = useRefreshAnalysis();
   const { setCurrentSymbol } = useSymbol();
   const router = useRouter();
   const info = getAssetInfo(symbol);
@@ -100,7 +102,16 @@ function AnalysisContent({ symbol }: { symbol: string }) {
       {/* Overview tab */}
       {tab === "overview" && (
         <Panel title={`${info.icon} ${info.name} 智能分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
-          <AnalysisOverview entry={data.current} onRefresh={() => refetch()} />
+          <AnalysisOverview
+            entry={data.current}
+            onRefresh={() => {
+              if (featureIsMock("analysis")) {
+                void refetch();
+              } else {
+                void refreshMutation.mutate(symbol);
+              }
+            }}
+          />
         </Panel>
       )}
 

@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Query, UseGuards } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 
 @Controller('analysis')
 export class AnalysisController {
@@ -17,5 +18,12 @@ export class AnalysisController {
     @Query('limit') limit?: number,
   ) {
     return this.analysis.getHistory(symbol, timeframe || '1d', limit || 20);
+  }
+
+  /** Force a fresh decision-pipeline run and persist the result (Pro feature per API_SPEC). */
+  @UseGuards(JwtAuthGuard)
+  @Post(':symbol/refresh')
+  refreshAnalysis(@Param('symbol') symbol: string, @Query('timeframe') timeframe?: string) {
+    return this.analysis.refreshAnalysis(symbol, timeframe || '1d');
   }
 }

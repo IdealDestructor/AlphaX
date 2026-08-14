@@ -13,6 +13,11 @@ import { UserModule } from './modules/user/user.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { JournalModule } from './modules/journal/journal.module';
 import { ToolsModule } from './modules/tools/tools.module';
+import { SentimentModule } from './modules/sentiment/sentiment.module';
+import { SmartMoneyModule } from './modules/smart-money/smart-money.module';
+import { BillingModule } from './modules/billing/billing.module';
+import { WatchlistModule } from './modules/watchlist/watchlist.module';
+import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 
 @Module({
   imports: [
@@ -30,6 +35,11 @@ import { ToolsModule } from './modules/tools/tools.module';
     DashboardModule,
     JournalModule,
     ToolsModule,
+    SentimentModule,
+    SmartMoneyModule,
+    BillingModule,
+    WatchlistModule,
+    ApiKeysModule,
   ],
 })
 export class AppModule {}

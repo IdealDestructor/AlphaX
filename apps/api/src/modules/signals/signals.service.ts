@@ -46,4 +46,26 @@ export class SignalsService {
       outcome: s.outcome,
     };
   }
+
+  async getStats() {
+    const [byStatus, byAction, total, tpCount, slCount] = await Promise.all([
+      this.prisma.signal.groupBy({ by: ['status'], _count: { _all: true } }),
+      this.prisma.signal.groupBy({ by: ['action'], _count: { _all: true } }),
+      this.prisma.signal.count(),
+      this.prisma.signal.count({ where: { status: 'hit_tp' } }),
+      this.prisma.signal.count({ where: { status: 'hit_sl' } }),
+    ]);
+
+    const closed = tpCount + slCount;
+    const winRate = closed > 0 ? Math.round((tpCount / closed) * 1000) / 10 : 0;
+
+    return {
+      total,
+      winRate,
+      win: tpCount,
+      loss: slCount,
+      byAction: Object.fromEntries(byAction.map((a) => [a.action, a._count._all])),
+      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count._all])),
+    };
+  }
 }

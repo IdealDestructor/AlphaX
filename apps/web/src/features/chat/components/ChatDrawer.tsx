@@ -4,14 +4,16 @@ import { useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/cn";
 import { useChatUI } from "@/lib/chat-ui-context";
 import { useSymbol } from "@/lib/symbol-context";
+import { featureIsMock } from "@/lib/api/mock";
 import { SkeletonPanel, EmptyState } from "@/components/state/States";
 import { ChatWindow } from "./ChatWindow";
-import { useChatPageData, useSendMessage } from "../api";
+import { useChatPageData, useSendMessage, useSendMessageStream } from "../api";
 
 export function ChatDrawer() {
   const { open, closeChat } = useChatUI();
   const { data, isLoading } = useChatPageData();
   const sendMessage = useSendMessage();
+  const sendStream = useSendMessageStream();
   const [currentId, setCurrentId] = useState<string | null>(null);
   const { currentSymbol: symbol } = useSymbol();
 
@@ -40,12 +42,17 @@ export function ChatDrawer() {
     (content: string) => {
       const id = currentId ?? data?.currentSessionId;
       if (!id) return;
-      sendMessage.mutate({ sessionId: id, content });
+      if (featureIsMock("chat")) {
+        sendMessage.mutate({ sessionId: id, content });
+      } else {
+        sendStream.mutate({ sessionId: id, content });
+      }
     },
-    [currentId, data?.currentSessionId, sendMessage],
+    [currentId, data?.currentSessionId, sendMessage, sendStream],
   );
 
   const sessionId = currentId ?? data?.currentSessionId ?? "";
+  const sending = sendMessage.isPending || sendStream.isPending;
 
   return (
     <>
@@ -100,7 +107,7 @@ export function ChatDrawer() {
             onDeleteSession={handleDeleteSession}
             onSendMessage={handleSendMessage}
             onClose={closeChat}
-            sending={sendMessage.isPending}
+            sending={sending}
           />
         )}
       </aside>

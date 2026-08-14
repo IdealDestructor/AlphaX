@@ -45,6 +45,13 @@ export class AnalysisService {
     }));
   }
 
+  /** Force a fresh pipeline run, bypassing the cached latest analysis. */
+  async refreshAnalysis(symbol: string, timeframe: string = '1d') {
+    const symbolRecord = await this.prisma.symbol.findUnique({ where: { code: symbol } });
+    if (!symbolRecord) return null;
+    return this.generateAndSave(symbolRecord, symbol, timeframe);
+  }
+
   private formatAnalysis(a: any, symbol: string) {
     return {
       symbol,
