@@ -6,9 +6,26 @@ import { featureIsMock } from "@/lib/api/mock";
 import { fetchMockSettings, fetchMockUpdateSettings } from "./mock";
 import type { SettingsPageData } from "./types";
 
+interface BackendProfile {
+  email: string;
+  displayName?: string | null;
+  plan: "free" | "pro" | "enterprise";
+}
+
 async function fetchSettings(): Promise<SettingsPageData> {
   if (featureIsMock("settings")) return fetchMockSettings();
-  return apiClient.get<SettingsPageData>("/me");
+
+  const profile = await apiClient.get<BackendProfile>("/user/profile");
+  const defaults = fetchMockSettings();
+  return {
+    ...defaults,
+    profile: {
+      ...defaults.profile,
+      name: profile.displayName || profile.email.split("@")[0] || "User",
+      email: profile.email,
+      plan: profile.plan === "enterprise" ? "max" : profile.plan,
+    },
+  };
 }
 
 export function useSettings() {
@@ -24,7 +41,11 @@ export function useUpdateSettings() {
   return useMutation({
     mutationFn: async (partial: Partial<SettingsPageData>) => {
       if (featureIsMock("settings")) return fetchMockUpdateSettings(partial);
-      return apiClient.patch<SettingsPageData>("/me", partial);
+      if (partial.profile?.name) {
+        await apiClient.patch("/user/profile", { displayName: partial.profile.name });
+      }
+      const current = qc.getQueryData<SettingsPageData>(["settings"]) ?? fetchMockSettings();
+      return { ...current, ...partial };
     },
     onSuccess: (result) => qc.setQueryData(["settings"], result),
   });

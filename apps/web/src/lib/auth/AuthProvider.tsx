@@ -11,6 +11,11 @@ interface User {
   plan: "free" | "pro" | "enterprise";
 }
 
+interface AuthTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 interface AuthContextValue {
   user: User | null;
   isAuthenticated: boolean;
@@ -28,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const tok = tokenStore.getAccessToken();
     if (tok) {
-      apiClient.get<User>("/me").then(setUser).catch(() => tokenStore.clear());
+      apiClient.get<User>("/auth/me").then(setUser).catch(() => tokenStore.clear());
     }
     const unsub = tokenStore.subscribe(() => {
       if (!tokenStore.getAccessToken()) setUser(null);
@@ -37,13 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const res = await apiClient.post<{ access_token: string; refresh_token: string; user: User }>(
+    const res = await apiClient.post<AuthTokenResponse>(
       "/auth/login",
       { email, password },
       { noAuth: true },
     );
-    tokenStore.setTokens(res.access_token, res.refresh_token);
-    setUser(res.user);
+    tokenStore.setTokens(res.accessToken, res.refreshToken);
+    setUser(await apiClient.get<User>("/auth/me"));
   }, []);
 
   const register = useCallback(async (email: string, password: string, displayName?: string) => {

@@ -1,8 +1,14 @@
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsOptional, IsString, IsInt, IsArray, Min, Max } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
 
 export class QuoteQuery {
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') return undefined;
+    if (Array.isArray(value)) return value;
+    return String(value).split(',').map((symbol) => symbol.trim()).filter(Boolean);
+  })
+  @IsArray()
   @IsString({ each: true })
   symbols?: string[];
 }

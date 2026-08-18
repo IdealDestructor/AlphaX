@@ -90,12 +90,12 @@ async function doRefresh(): Promise<boolean> {
     const res = await fetch(`${BASE_URL}/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refresh }),
+      body: JSON.stringify({ refreshToken: refresh }),
     });
     if (!res.ok) { tokenStore.clear(); return false; }
     const json = await res.json();
-    const body = json as ApiResponse<{ access_token: string; refresh_token: string }>;
-    tokenStore.setTokens(body.data.access_token, body.data.refresh_token);
+    const body = json as ApiResponse<{ accessToken: string; refreshToken: string }>;
+    tokenStore.setTokens(body.data.accessToken, body.data.refreshToken);
     return true;
   } catch {
     tokenStore.clear();

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, apiUrl } from "@/lib/api/client";
 import { featureIsMock } from "@/lib/api/mock";
 import { tokenStore } from "@/lib/auth/store";
+import { useAuth } from "@/lib/auth/AuthProvider";
 import { chatPageDataMock } from "./mock";
 import type { ChatPageData, ChatMessage, ChatSession } from "./types";
 
@@ -64,10 +65,16 @@ async function fetchChatPageData(): Promise<ChatPageData> {
 }
 
 export function useChatPageData() {
+  const { isAuthenticated } = useAuth();
+
   return useQuery({
     queryKey: ["chat"],
     queryFn: fetchChatPageData,
     staleTime: 30_000,
+    // Chat sessions are protected by JwtAuthGuard. Do not issue a request
+    // for an anonymous visitor; React Query will start fetching after
+    // AuthProvider finishes login/bootstrap.
+    enabled: featureIsMock("chat") || isAuthenticated,
   });
 }
 

@@ -9,8 +9,14 @@ export class MarketService {
     return this.prisma.symbol.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } });
   }
 
-  async getQuotes(symbols?: string[]) {
-    const where = symbols?.length ? { code: { in: symbols }, isActive: true } : { isActive: true };
+  async getQuotes(symbols?: string[] | string) {
+    const requestedSymbols = (Array.isArray(symbols) ? symbols : symbols ? [symbols] : [])
+      .flatMap((value) => value.split(','))
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const where = requestedSymbols.length
+      ? { code: { in: requestedSymbols }, isActive: true }
+      : { isActive: true };
     const symbolList = await this.prisma.symbol.findMany({ where });
     return symbolList.map((s) => this.generateQuote(s.code));
   }
