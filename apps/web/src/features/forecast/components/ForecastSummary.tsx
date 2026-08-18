@@ -19,6 +19,10 @@ const levelCls = {
 };
 
 export function ForecastSummary({ data }: Props) {
+  const day1 = data.windows[0];
+  const day7 = data.windows[2];
+  const day30 = data.windows[4];
+
   return (
     <div className="flex flex-col gap-4">
       {/* Direction + confidence */}
@@ -30,10 +34,10 @@ export function ForecastSummary({ data }: Props) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <SummaryStat label="当前价格" value={data.currentPrice.toFixed(2)} sub="XAUUSD" />
-        <SummaryStat label="1 日概率" value={`${(data.windows[0]!.probability * 100).toFixed(0)}%`} sub={`目标 ${data.windows[0]!.medianPrice.toFixed(1)}`} tone={data.windows[0]!.probability >= 0.55 ? "up" : "down"} />
-        <SummaryStat label="7 日概率" value={`${(data.windows[2]!.probability * 100).toFixed(0)}%`} sub={`目标 ${data.windows[2]!.medianPrice.toFixed(1)}`} tone={data.windows[2]!.probability >= 0.5 ? "up" : "down"} />
-        <SummaryStat label="30 日概率" value={`${(data.windows[4]!.probability * 100).toFixed(0)}%`} sub={`目标 ${data.windows[4]!.medianPrice.toFixed(1)}`} tone={data.windows[4]!.probability >= 0.45 ? "up" : "down"} />
+        <SummaryStat label="当前价格" value={data.currentPrice.toFixed(2)} sub={data.symbol} />
+        <SummaryStat label="1 日概率" value={`${((day1?.probability ?? 0) * 100).toFixed(0)}%`} sub={`目标 ${(day1?.medianPrice ?? 0).toFixed(1)}`} tone={(day1?.probability ?? 0) >= 0.55 ? "up" : "down"} />
+        <SummaryStat label="7 日概率" value={`${((day7?.probability ?? 0) * 100).toFixed(0)}%`} sub={`目标 ${(day7?.medianPrice ?? 0).toFixed(1)}`} tone={(day7?.probability ?? 0) >= 0.5 ? "up" : "down"} />
+        <SummaryStat label="30 日概率" value={`${((day30?.probability ?? 0) * 100).toFixed(0)}%`} sub={`目标 ${(day30?.medianPrice ?? 0).toFixed(1)}`} tone={(day30?.probability ?? 0) >= 0.45 ? "up" : "down"} />
       </div>
 
       {/* Key levels */}
