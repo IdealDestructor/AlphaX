@@ -235,6 +235,83 @@
 
 ---
 
+## ADR-013：数据源适配层（Provider Adapter + Registry + Normalizer）
+
+| 项 | 内容 |
+|----|------|
+| Status | **In progress（2026-08-20 首版落地）** |
+| Date | 2026-08-20 |
+> **落地状态：** 首版按本 ADR 思路落在 `apps/api/src/modules/market/providers/`（types/registry/mock/tickflow），TickFlow 已作为主源接入 quotes/candles，失败或无映射自动回退 mock，`GET /market/data-source` 暴露状态；2026-08-20 第二轮新增 Binance（加密）/ Treasury（美债）/ TwelveData（黄金白银）三个 Provider，Registry 升级为多 Provider 按标的路由（TwelveData→Binance→Treasury→TickFlow→Mock），`/market/data-source` 返回各 Provider 健康状态；后续按 P1 拆独立 `market-data` 模块并补齐 normalizer/schemas 契约。
+
+
+**上下文：** 行情/指标/新闻需要接入真实数据源，且要支持主备切换、可插拔、mock 可回退（参考 tickflow-stock-panel 的 data_providers 目录与 financial-Research 分层架构）。
+
+**决策：** NestJS 新增 `market-data` 模块：`providers/{base,registry,normalizer,schemas}`；所有下游只依赖内部 NormalizedSchema（symbol/ts/OHLCV/amount/source/quality），不感知具体源；Provider 支持主备路由 + 健康检查；`NEXT_PUBLIC_MOCK` 保留一键回退。
+
+**后果：**
+
+- 换源/加源只新增 Provider，不影响业务与前端
+- 增加适配层代码与契约维护成本
+- 为回测/指标/AI 提供统一数据底座
+
+---
+
+## ADR-014：本地数据湖（Parquet/DuckDB）+ Redis 缓存
+
+| 项 | 内容 |
+|----|------|
+| Status | Proposed |
+| Date | 2026-08-20 |
+
+**上下文：** 免费数据源限频；回测与指标需要历史数据；Postgres 存高频 OHLCV 成本高（参考 tickflow Parquet/DuckDB 本地数据湖）。
+
+**决策：** `data/` 目录用 Parquet 存行情/指标/回测结果（schema 版本化），DuckDB 查询；Postgres 只存业务与最新快照；Redis 做盘中热缓存（quote 5–15s / candle 30–60s），P0 可用内存 TTL 过渡。
+
+**后果：**
+
+- 降低对上游依赖、支撑回测与离线分析
+- 需处理数据迁移与 schema 兼容（Parquet versioning）
+- 单机本地存储，多实例部署需挂共享卷或对象存储
+
+---
+
+## ADR-015：数据源分层降级与串行限流
+
+| 项 | 内容 |
+|----|------|
+| Status | Proposed |
+| Date | 2026-08-20 |
+
+**上下文：** 免费公开源会被限频/封 IP；金融数据「能拿真数据绝不让模型编」（financial-Research VISION）。
+
+**决策：** 每个数据集配置主源 + 备用源；主源失败自动切备用；失败退避重试；串行限流 + 随机抖动 + 会话复用（参考 a-stock-data em_get）；源故障时如实报缺（source:"unavailable"），不用「看起来合理」的数据填空；空结果不缓存。
+
+**后果：**
+
+- 稳定性显著提升，单源故障不中断服务
+- 需监控各源健康度与配额消耗
+- 偶发「数据缺失」展示，符合合规与可信原则
+
+---
+
+## ADR-016：apps/ai 可插拔 LLM + MCP Server
+
+| 项 | 内容 |
+|----|------|
+| Status | Proposed |
+| Date | 2026-08-20 |
+
+**上下文：** AI 服务未落地；用户希望用自己的模型/订阅（参考 financial-Research：OpenAI 兼容 + 本机 CLI + MCP）。
+
+**决策：** `apps/ai` 用 FastAPI 实现；LLM 可插拔（OpenAI 兼容 / DeepSeek / Ollama / 本机 CLI 订阅），带 token 预算与模型分级；提供 MCP Server（零依赖 JSON-RPC over stdio，暴露 query_quote / query_analysis / query_news 等工具）；结果用 Pydantic 与前端 Zod 对齐；所有流式输出走 SSE/NDJSON。
+
+**后果：**
+
+- 用户自备 Key/模型，成本可控，隐私更好
+- 增加一套 Python 服务与运维面
+- 为多空辩论/反思审计/复盘/资讯雷达提供统一 AI 底座
+
+---
 ## 新增 ADR 模板
 
 ```markdown
@@ -255,3 +332,4 @@
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)
 - [CODING_RULES.md](./CODING_RULES.md)
 - [OPS.md](./OPS.md)
+

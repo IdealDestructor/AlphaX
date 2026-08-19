@@ -126,3 +126,70 @@
 ### 🔲 基础设施 / 服务
 - [ ] 启动 Redis（后端限流/缓存依赖）
 - [ ] 实现 `apps/ai` Python AI 服务（chat 的 `generateReply` / AI 分析目前是后端 mock/fallback）
+
+---
+
+## 整体升级方案（2026-08-20 起草）
+
+> 方案全文见 [docs/UPGRADE_PLAN.md](./docs/UPGRADE_PLAN.md)。参考项目：`tickflow-stock-panel`（数据源插件化/本地数据湖/回测监控）、`financial-Research`（分层降级/多空辩论/反思审计/MCP/可插拔 LLM）。
+> 目标：真实数据源替换 mock → 数据源适配层 + 分层降级 + 本地数据湖 → 产品能力补齐 → `apps/ai` AI 服务。
+
+### P0 — 数据源 PoC（1–2 周）
+
+**✅ 本轮已完成 (2026-08-20)**
+- [x] 配置 TickFlow API Key（`apps/api/.env`，gitignore 不提交）
+- [x] API 启动时加载 `.env`（`main.ts` 用 Node22 内置 `process.loadEnvFile`，零依赖）
+- [x] TickFlow Provider 适配（`market/providers/tickflow/`）：`/v1/quotes` + `/v1/klines[/intraday]`，REST 直连、鉴权 Bearer/X-API-Key、容错归一化
+- [x] Provider 注册表 + 分层降级（`market/providers/registry.ts`）：TickFlow 优先，失败/无映射自动回退 Mock；quotes 与 candles 均带 `source` 字段
+- [x] 标的映射（`tickflow/symbol-map.ts`）：GLD/SLV/SPY→美股ETF、NAS100/SPX500→美股指数（最佳猜测，可用 `TICKFLOW_SYMBOL_MAP` 覆盖）；XAUUSD 等现货/加密/债券暂无 TickFlow 覆盖，如实走模拟
+- [x] 数据源状态接口 `GET /market/data-source`（primary/live/lastError/symbolMap/sourceBySymbol）
+- [x] 前端行情页显示「实时行情 / 模拟数据」角标（`MarketHeader.tsx`，按每条 quote 的 `source` 展示）
+- [ ] **待本地验证**：启动 Docker/Postgres + `pnpm dev`，用真实 Key 验证 TickFlow 返回与字段语义（当前沙箱无外网，已用离线用例验证归一化与降级逻辑）
+- [x] 三类标的免费数据源调研落定（§3.2.1）：黄金/白银=TwelveData(+Frankfurter/Stooq 备用)、加密=Binance 公开行情(+CoinGecko)、美债=US Treasury 官方 CSV(+FRED)
+- [x] Binance Provider（`market/providers/binance/`）：`ticker/24hr` + `klines`，免 Key，BTCUSD→BTCUSDT
+- [x] Treasury Provider（`market/providers/treasury/`）：官方 daily-treasury-rates CSV → US10Y 收益率
+- [x] TwelveData Provider（`market/providers/twelve-data/`）：`/price` + `/time_series`\n- [x] 配置 TwelveData API Key（`apps/api/.env`，gitignore 不提交；XAUUSD/XAGUSD 已路由到 twelve-data）
+- [x] Registry 多 Provider 路由（TwelveData→Binance→Treasury→TickFlow→Mock）+ `/market/data-source` 返回各源状态；前端角标显示来源名
+- [ ] **待本地验证**：Binance / Treasury / TwelveData 真实端点 curl 验证（当前沙箱无外网）
+
+- [x] `market-data` 模块骨架：`providers/{types,registry,normalizer}`（已按 tickflow `data_providers/` 思路落地在 `market/providers/`，后续拆独立 `market-data` 模块）
+- [x] 接入 TwelveData Provider（quote/candle，需 `TWELVEDATA_API_KEY`，待本地验证）；备用 Frankfurter/Stooq 待接
+- [x] 接入 Binance 公开行情（BTCUSD→BTCUSDT，免 Key，待本地验证）；CoinGecko 备用待接
+- [ ] 新闻 RSS 收编为 Provider（现有 Google News/Kitco/CoinDesk/CNBC）
+- [ ] `/market/quotes|candles` 切换真实数据；`NEXT_PUBLIC_MOCK` 一键回退
+- [ ] Provider 健康检查 + 主备切换 + 串行限流（参考 a-stock-data `em_get`）
+- [ ] Redis 缓存（quote 5–15s / candle 30–60s）；P0 可用内存 TTL 过渡
+- [ ] `symbols` 表扩展（exchange/market/currency/timezone/price_source）
+
+### P1 — 本地数据湖 + 指标 + 回测（3–4 周）
+- [ ] `data/` 本地数据湖：日K/分钟K Parquet + schema 版本化（参考 tickflow）
+- [ ] 盘后批量同步 + 盘中增量追加
+- [ ] 指标 enriched 管线（MA/EMA/MACD/RSI/KDJ/BOLL/ATR/VWAP）
+- [ ] 信号扫描（Screener）：内置策略 + 自定义条件（对齐 tickflow 18 策略思路）
+- [ ] 回测引擎：因子回测（IC/IR/分层）+ 策略回测（净值/回撤/夏普/胜率）
+- [ ] SSE：`/market/stream`、`/analysis/stream`（替代 15s 轮询）
+
+### P2 — apps/ai + 投研闭环（4–6 周）
+- [ ] `apps/ai` FastAPI 服务：/ai/chat /ai/debate /ai/reflect /ai/analyze（SSE/NDJSON）
+- [ ] 可插拔 LLM：OpenAI 兼容 / DeepSeek / Ollama / 本机 CLI 订阅 + token 预算
+- [ ] 多空辩论（事实底稿 → 多方/空方 → 中立主持 → 验证清单，参考 financial debate.py）
+- [ ] 反思审计（对已有分析做推理审计，参考 reflection.py）
+- [ ] 资讯雷达（12 赛道多源 RSS + AI 提炼今日要点，参考 newsradar.py）
+- [ ] 盘后 AI 复盘（定时执行 + 推送，参考 tickflow Review）
+- [ ] MCP Server（零依赖 JSON-RPC over stdio：query_quote / query_analysis / query_news…，参考 mcp_server.py）
+- [ ] Pydantic schema 与前端 Zod 对齐（ADR-006 落地）
+
+### P3 — 实时 + 监控 + 商业化（4–6 周）
+- [ ] WebSocket `/v1/ws` 网关（quote/candle/analysis/signal 频道；安装 @nestjs/websockets）
+- [ ] 四类监控（策略/个股信号/价格/异动）+ 多通道推送（邮件/Telegram/飞书/WebPush）
+- [ ] 自选批量导入 + 表格/卡片双视图 + 实时行情开关
+- [ ] 首页看板升级：市场情绪评分 + 榜单 + 异动事件流
+- [ ] Stripe 真实 checkout/webhook/portal + Pro 门控
+- [ ] `packages/schemas` 共享 Zod 契约落地
+
+### 产品原则（吸收 financial-Research VISION）
+- [ ] 数据摆全、框架公开、结论归用户；AI 不产出买卖指令
+- [ ] 多空辩论/反思以「分歧点 + 验证清单」收尾，不以下结论收尾
+- [ ] 能拿到真数据绝不让模型编；源挂了如实报缺，不填空
+- [ ] 用户自选/持仓/研报仅存本地，不上传第三方
+

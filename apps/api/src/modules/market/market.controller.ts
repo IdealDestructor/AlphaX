@@ -25,4 +25,10 @@ export class MarketController {
   getIndicators(@Query() query: IndicatorsQuery) {
     return this.market.getIndicators(query.symbol, query.interval!, query.indicators || []);
   }
+
+  /** 数据源状态: 真实行情 / 模拟数据, 供前端展示与排障 */
+  @Get('data-source')
+  getDataSourceStatus() {
+    return this.market.getDataSourceStatus();
+  }
 }

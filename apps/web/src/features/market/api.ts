@@ -24,6 +24,7 @@ interface BackendQuote {
   low: number;
   volume: number;
   timestamp: string;
+  source?: "tickflow" | "twelve-data" | "binance" | "treasury" | "mock";
 }
 
 type BackendIndicator = Record<string, any>;
@@ -56,6 +57,7 @@ function mapQuote(raw: BackendQuote): Quote {
   const ask = raw.price + 0.15;
   return {
     symbol: raw.symbol,
+    source: raw.source ?? "mock",
     price: raw.price,
     bid,
     ask,
@@ -156,6 +158,7 @@ async function fetchMarketData(symbol: string, timeframe: Timeframe): Promise<Ma
     low: 0,
     volume: 0,
     timestamp: new Date().toISOString(),
+    source: "mock",
   };
   const quote = mapQuote(quoteRaw);
   const price = candleList.length ? candleList[candleList.length - 1]!.close : quote.price;
@@ -178,3 +181,5 @@ export function useMarketData(symbol: string, timeframe: Timeframe) {
 }
 
 export { MOCK_SYMBOLS };
+
+

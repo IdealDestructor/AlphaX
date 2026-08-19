@@ -30,6 +30,7 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 | 商业 | [COMPETITOR_ANALYSIS.md](./docs/COMPETITOR_ANALYSIS.md) | 竞品对比与差异化 |
 | 商业 | [MONETIZATION.md](./docs/MONETIZATION.md) | 订阅体系与商业模式 |
 | 决策 | [ARCHITECTURE_DECISIONS.md](./docs/ARCHITECTURE_DECISIONS.md) | ADR 技术选型记录 |
+| 决策 | [UPGRADE_PLAN.md](./docs/UPGRADE_PLAN.md) | 整体升级方案（数据源/产品/架构） |
 | 运维 | [OPS.md](./docs/OPS.md) | Docker、CI/CD、监控、安全、部署 |
 
 ---

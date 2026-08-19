@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/cn";
 import type { Quote } from "@/features/market/types";
+import { SOURCE_LABELS } from "@/features/market/types";
 import { Star } from "lucide-react";
 
 interface Props {
@@ -14,6 +15,8 @@ export function MarketHeader({ quote, symbolName, group }: Props) {
   const isUp = quote.change >= 0;
   const changeCls = isUp ? "text-bullish" : "text-bearish";
   const arrow = isUp ? "▲" : "▼";
+  const isReal = quote.source !== undefined && quote.source !== "mock";
+  const sourceLabel = quote.source ? SOURCE_LABELS[quote.source] : "模拟数据";
 
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
@@ -29,6 +32,21 @@ export function MarketHeader({ quote, symbolName, group }: Props) {
           <span className="rounded-sm border border-border bg-bg-elevated px-2 py-0.5 text-[10px] text-text-muted">
             {group}
           </span>
+          {isReal ? (
+            <span
+              className="rounded-sm border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-500"
+              title={`数据来自 ${sourceLabel} 实时行情`}
+            >
+              实时 · {sourceLabel}
+            </span>
+          ) : (
+            <span
+              className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] text-amber-500"
+              title="该标的暂无真实数据源, 展示模拟数据"
+            >
+              模拟数据
+            </span>
+          )}
         </div>
         <p className="m-0 text-sm text-text-secondary">{symbolName}</p>
       </div>

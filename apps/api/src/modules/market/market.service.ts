@@ -1,48 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MarketDataRegistry } from './providers/registry';
+import type { Candle, DataSourceStatus, MarketDataSource, Quote } from './providers/market-data.types';
 
 @Injectable()
 export class MarketService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private registry: MarketDataRegistry,
+  ) {}
 
   async getSymbols() {
     return this.prisma.symbol.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } });
   }
 
-  async getQuotes(symbols?: string[] | string) {
-    const requestedSymbols = (Array.isArray(symbols) ? symbols : symbols ? [symbols] : [])
-      .flatMap((value) => value.split(','))
-      .map((value) => value.trim())
-      .filter(Boolean);
+  /** 实时行情: 可映射标的走 TickFlow, 其余/失败自动降级 mock */
+  async getQuotes(symbols?: string[] | string): Promise<Quote[]> {
+    const requestedSymbols = this.normalizeSymbols(symbols);
     const where = requestedSymbols.length
       ? { code: { in: requestedSymbols }, isActive: true }
       : { isActive: true };
     const symbolList = await this.prisma.symbol.findMany({ where });
-    return symbolList.map((s) => this.generateQuote(s.code));
+    return this.registry.getQuotes(symbolList.map((s) => s.code));
   }
 
-  async getCandles(symbol: string, interval: string, limit: number) {
-    const now = Date.now();
-    const msPerCandle = this.intervalToMs(interval);
-    const candles: any[] = [];
-
-    for (let i = limit - 1; i >= 0; i--) {
-      const ts = Math.floor((now - i * msPerCandle) / msPerCandle) * msPerCandle;
-      const base = 2300 + Math.sin(ts / 3600000) * 50 + Math.random() * 10;
-      const open = base;
-      const close = base + (Math.random() - 0.5) * 20;
-      const high = Math.max(open, close) + Math.random() * 10;
-      const low = Math.min(open, close) - Math.random() * 10;
-      candles.push({
-        time: ts / 1000,
-        open: Math.round(open * 100) / 100,
-        high: Math.round(high * 100) / 100,
-        low: Math.round(low * 100) / 100,
-        close: Math.round(close * 100) / 100,
-        volume: Math.round(Math.random() * 10000 + 1000),
-      });
-    }
-    return candles;
+  async getCandles(symbol: string, interval: string, limit: number): Promise<Candle[]> {
+    return this.registry.getCandles(symbol, interval, limit);
   }
 
   async getIndicators(symbol: string, interval: string, indicators: string[]) {
@@ -68,40 +51,20 @@ export class MarketService {
     return result;
   }
 
-  private generateQuote(code: string) {
-    const basePrice = this.basePrice(code);
-    const change = (Math.random() - 0.5) * 0.04;
-    const price = basePrice * (1 + change);
-    const open = basePrice * (1 + (Math.random() - 0.5) * 0.02);
-    return {
-      symbol: code,
-      price: Math.round(price * 100) / 100,
-      change: Math.round(change * 10000) / 100,
-      changePercent: Math.round((change / (1 + change)) * 10000) / 100,
-      high: Math.round(price * 1.005 * 100) / 100,
-      low: Math.round(price * 0.995 * 100) / 100,
-      open: Math.round(open * 100) / 100,
-      close: Math.round(price * 100) / 100,
-      volume: Math.round(Math.random() * 100000 + 5000),
-      timestamp: new Date().toISOString(),
-    };
+  /** 数据源状态: 当前主源、是否真实可用、每个标的实际走哪个源 */
+  async getDataSourceStatus(): Promise<DataSourceStatus> {
+    const status = this.registry.getStatus();
+    const symbolList = await this.prisma.symbol.findMany({ where: { isActive: true } });
+    const sourceBySymbol: Record<string, MarketDataSource> = {};
+    for (const s of symbolList) sourceBySymbol[s.code] = this.registry.sourceFor(s.code);
+    return { ...status, sourceBySymbol };
   }
 
-  private basePrice(code: string): number {
-    const prices: Record<string, number> = {
-      XAUUSD: 2350, XAGUSD: 28.5, BTCUSD: 67000, DXY: 104.5,
-      NAS100: 19750, SPX500: 5400, WTI: 78, BRENT: 82,
-      GLD: 215, SLV: 25, SPY: 540, US10Y: 4.25,
-    };
-    return prices[code] || 100;
-  }
-
-  private intervalToMs(interval: string): number {
-    const map: Record<string, number> = {
-      '1m': 60000, '5m': 300000, '15m': 900000, '30m': 1800000,
-      '1h': 3600000, '4h': 14400000, '1d': 86400000, '1w': 604800000,
-    };
-    return map[interval] || 3600000;
+  private normalizeSymbols(symbols?: string[] | string): string[] {
+    return (Array.isArray(symbols) ? symbols : symbols ? [symbols] : [])
+      .flatMap((value) => value.split(','))
+      .map((value) => value.trim())
+      .filter(Boolean);
   }
 
   private computeSMA(candles: any[], period: number) {
@@ -193,3 +156,4 @@ export class MarketService {
     return result;
   }
 }
+

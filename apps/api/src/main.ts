@@ -1,9 +1,29 @@
+import { existsSync } from 'fs';
+import { resolve } from 'path';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
+/**
+ * 加载 apps/api/.env (Node 22 内置能力, 无第三方依赖)。
+ * 已有环境变量优先, 文件不会覆盖。
+ */
+function loadEnvFile(): void {
+  try {
+    const envPath = resolve(process.cwd(), '.env');
+    if (existsSync(envPath)) {
+      process.loadEnvFile(envPath);
+      console.log(`[env] loaded ${envPath}`);
+    }
+  } catch (err) {
+    console.warn('[env] failed to load .env:', (err as Error).message);
+  }
+}
+
 async function bootstrap() {
+  loadEnvFile();
+
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
