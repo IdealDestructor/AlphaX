@@ -81,8 +81,27 @@ function mapNews(raw: BackendNews): AiNewsItem {
   };
 }
 
+/**
+ * News data source priority:
+ *  1. Live RSS (Next.js route /api/news, fetched fresh on every request)
+ *  2. Backend /news (DB; fallback - may contain seeded/static rows)
+ *  3. Mock (last resort)
+ */
 async function fetchNews(): Promise<NewsPageData> {
   if (featureIsMock("news")) return fetchMockNews();
+
+  // 1) Live RSS
+  try {
+    const res = await fetch("/api/news", { signal: AbortSignal.timeout(20_000) });
+    if (res.ok) {
+      const data = (await res.json()) as NewsPageData;
+      if (Array.isArray(data.items) && data.items.length > 0) return data;
+    }
+  } catch {
+    /* RSS unavailable - fall back to backend DB */
+  }
+
+  // 2) Backend /news (DB)
   try {
     const page = await apiClient.get<BackendNewsPage>("/news", {
       params: { limit: 50, offset: 0 },

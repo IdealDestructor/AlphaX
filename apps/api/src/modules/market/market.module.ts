@@ -6,6 +6,6 @@ import { MarketDataRegistry } from './providers/registry';
 @Module({
   controllers: [MarketController],
   providers: [MarketService, MarketDataRegistry],
-  exports: [MarketService],
+  exports: [MarketService, MarketDataRegistry],
 })
 export class MarketModule {}

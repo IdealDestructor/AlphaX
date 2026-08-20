@@ -16,6 +16,7 @@ import { ToolsModule } from './modules/tools/tools.module';
 import { SentimentModule } from './modules/sentiment/sentiment.module';
 import { SmartMoneyModule } from './modules/smart-money/smart-money.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { EntitlementsModule } from './modules/entitlements/entitlements.module';
 import { WatchlistModule } from './modules/watchlist/watchlist.module';
 import { ApiKeysModule } from './modules/api-keys/api-keys.module';
 
@@ -38,6 +39,7 @@ import { ApiKeysModule } from './modules/api-keys/api-keys.module';
     SentimentModule,
     SmartMoneyModule,
     BillingModule,
+    EntitlementsModule,
     WatchlistModule,
     ApiKeysModule,
   ],

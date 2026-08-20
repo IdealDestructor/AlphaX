@@ -107,23 +107,22 @@ export class MarketDataRegistry {
       buckets.set(source, [...(buckets.get(source) ?? []), s]);
     }
 
-    const result: Quote[] = [];
-    for (const [source, syms] of buckets) {
-      const provider = this.providerFor(source);
-      if (!provider) {
-        result.push(...(await this.mock.getQuotes(syms)));
-        continue;
-      }
-      try {
-        const quotes = await provider.getQuotes(syms);
-        this.lastError[source] = undefined;
-        result.push(...quotes);
-      } catch (err) {
-        this.recordFailure(source, 'quotes', err);
-        result.push(...(await this.mock.getQuotes(syms)));
-      }
-    }
-    return result;
+    // Fetch each data source in parallel to avoid sequential provider timeouts slowing down quotes
+    const settled = await Promise.all(
+      Array.from(buckets.entries()).map(async ([source, syms]) => {
+        const provider = this.providerFor(source);
+        if (!provider) return this.mock.getQuotes(syms);
+        try {
+          const quotes = await provider.getQuotes(syms);
+          this.lastError[source] = undefined;
+          return quotes;
+        } catch (err) {
+          this.recordFailure(source, 'quotes', err);
+          return this.mock.getQuotes(syms);
+        }
+      }),
+    );
+    return settled.flat();
   }
 
   async getCandles(symbol: string, interval: string, limit: number): Promise<Candle[]> {

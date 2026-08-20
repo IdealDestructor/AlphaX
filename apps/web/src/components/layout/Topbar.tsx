@@ -1,10 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
-import { Menu, Search, Bell, Settings } from "lucide-react";
+import { Menu, Search, Bell, Settings, LogOut, Crown } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { ASSETS } from "@/lib/assets";
 import { AssetSwitcher } from "@/features/dashboard/components/AssetSwitcher";
+import { useAuth } from "@/lib/auth";
+import { Badge } from "@/components/ui/Badge";
 
 const routeTitles: Record<string, string> = {
   "/": "市场总览",
@@ -15,7 +17,11 @@ const routeTitles: Record<string, string> = {
   "/news": "新闻摘要",
   "/alerts": "价格告警",
   "/settings": "设置",
+  "/billing": "套餐与授权",
 };
+
+const PLAN_LABEL: Record<string, string> = { free: "免费", pro: "Pro", enterprise: "Ent" };
+const PLAN_TONE: Record<string, "neutral" | "bull" | "wait"> = { free: "neutral", pro: "bull", enterprise: "wait" };
 
 export function Topbar({
   onMenu,
@@ -30,6 +36,7 @@ export function Topbar({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const dotColor =
     statusTone === "err"
       ? "bg-danger"
@@ -42,9 +49,16 @@ export function Topbar({
   )?.[1];
 
   const showAssetSwitcher =
-    !pathname.startsWith("/alerts") && !pathname.startsWith("/settings");
+    !pathname.startsWith("/alerts") &&
+    !pathname.startsWith("/settings") &&
+    !pathname.startsWith("/billing");
 
   const symbolsList = ASSETS.map((a) => a.symbol).join("、");
+
+  const onLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-15 border-b border-border bg-bg">
@@ -91,6 +105,24 @@ export function Topbar({
               {updatedAt}
             </span>
           ) : null}
+
+          {isAuthenticated && user ? (
+            <>
+              <Button variant="ghost" className="hidden sm:inline-flex" onClick={() => router.push("/billing")} aria-label="套餐与授权">
+                <Crown size={16} />
+                <Badge tone={PLAN_TONE[user.plan] ?? "neutral"}>{PLAN_LABEL[user.plan] ?? user.plan}</Badge>
+              </Button>
+              <Button variant="ghost" className="hidden sm:inline-flex" onClick={onLogout} aria-label="退出登录">
+                <LogOut size={16} />
+              </Button>
+            </>
+          ) : (
+            !isLoading && (
+              <Button variant="secondary" onClick={() => router.push(`/login?next=${encodeURIComponent(pathname)}`)}>
+                登录
+              </Button>
+            )
+          )}
 
           <Button variant="secondary">刷新</Button>
           <Button

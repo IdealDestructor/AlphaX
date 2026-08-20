@@ -4,11 +4,15 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EntitlementsService } from '../entitlements/entitlements.service';
 import { CreateAlertDto, UpdateAlertDto } from './dto';
 
 @Injectable()
 export class AlertsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private entitlements: EntitlementsService,
+  ) {}
 
   async getAlerts(userId: string, type?: string, status?: string) {
     const where: any = { userId };
@@ -29,6 +33,7 @@ export class AlertsService {
   }
 
   async createAlert(userId: string, dto: CreateAlertDto) {
+    await this.entitlements.assertQuota(userId, 'alerts');
     return this.prisma.alert.create({
       data: {
         userId,

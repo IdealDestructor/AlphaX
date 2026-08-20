@@ -1,6 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { SmartMoneyService } from './smart-money.service';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PlanGuard } from '../entitlements/plan.guard';
+import { RequirePlan } from '../entitlements/require-plan.decorator';
 
+@UseGuards(JwtAuthGuard, PlanGuard)
+@RequirePlan('pro')
 @Controller('smart-money')
 export class SmartMoneyController {
   constructor(private smartMoney: SmartMoneyService) {}

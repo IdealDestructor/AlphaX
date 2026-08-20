@@ -55,6 +55,7 @@ async function fetchSource(source: RssSource): Promise<AiNewsItem[]> {
   try {
     const res = await fetch(source.url, {
       signal: AbortSignal.timeout(8000),
+      cache: "no-store",
       headers: { "User-Agent": "Mozilla/5.0 AlphaX/2.0" },
     });
 

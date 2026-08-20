@@ -12,9 +12,12 @@ import {
 import { JournalService } from './journal.service';
 import { CreateJournalDto, UpdateJournalDto } from './dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PlanGuard } from '../entitlements/plan.guard';
+import { RequirePlan } from '../entitlements/require-plan.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PlanGuard)
+@RequirePlan('pro')
 @Controller('journal')
 export class JournalController {
   constructor(private journal: JournalService) {}

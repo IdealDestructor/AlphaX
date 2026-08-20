@@ -12,10 +12,12 @@
     "dev:api": "pnpm --filter @alphax/api dev",
     "build": "pnpm --filter @alphax/web build && pnpm --filter @alphax/api build",
     "build:api": "pnpm --filter @alphax/api build",
-    "start": "pnpm --filter @alphax/web start",
+    "start": "node scripts/start.js",
     "lint": "pnpm --filter @alphax/web lint",
     "typecheck": "pnpm --filter @alphax/web typecheck",
-    "test": "pnpm --filter @alphax/web test"
+    "test": "pnpm --filter @alphax/web test",
+    "start:web": "pnpm --filter @alphax/web start",
+    "start:all": "npm start"
   },
   "devDependencies": {
     "prettier": "^3.3.3"

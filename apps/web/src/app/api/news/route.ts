@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchAllFeeds } from "@/lib/rss/parser";
 import type { NewsPageData } from "@/features/news/types";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 120;
 
 export async function GET() {

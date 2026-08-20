@@ -38,6 +38,8 @@ export interface ProfileSettings {
 }
 
 export interface SettingsPageData {
+  /** 当前套餐不含 API Key 权限时为 true（后端 403 FORBIDDEN 降级） */
+  apiKeysLocked?: boolean;
   currency: CurrencyConfig;
   exchangeRates: ExchangeRate[];
   colorScheme: ColorScheme;

@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EntitlementsService } from '../entitlements/entitlements.service';
 
 @Injectable()
 export class WatchlistService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private entitlements: EntitlementsService,
+  ) {}
 
   async getWatchlist(userId: string) {
     const rows = await this.prisma.watchlist.findMany({
@@ -21,6 +25,7 @@ export class WatchlistService {
   }
 
   async addWatchlist(userId: string, symbolCode: string) {
+    await this.entitlements.assertQuota(userId, 'watchlist');
     const symbol = await this.prisma.symbol.findUnique({ where: { code: symbolCode } });
     if (!symbol) throw new NotFoundException(`Symbol not found: ${symbolCode}`);
     const existing = await this.prisma.watchlist.findUnique({

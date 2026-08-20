@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MarketDataRegistry } from '../market/providers/registry';
 
 @Injectable()
 export class DashboardService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private registry: MarketDataRegistry,
+  ) {}
 
   async getDashboard(symbol: string) {
     const symbolRecord = await this.prisma.symbol.findUnique({ where: { code: symbol } });
@@ -11,13 +15,15 @@ export class DashboardService {
       throw new NotFoundException(`Symbol ${symbol} not found`);
     }
 
-    const [analysis, signals, newsList] = await Promise.all([
+    const [analysis, signals, newsList, quotes] = await Promise.all([
       this.getAnalysis(symbolRecord),
       this.getSignals(symbolRecord),
       this.getNews(symbol),
+      this.registry.getQuotes([symbolRecord.code]),
     ]);
 
-    const quote = this.generateQuote(symbolRecord.code);
+    // Market overview quotes: prefer real data sources, registry falls back to mock on failure
+    const quote = quotes[0] ?? this.generateQuote(symbolRecord.code);
     const kpi = this.buildKpi(quote, analysis);
     const ticker = await this.getTicker();
     const sentiment = this.buildSentiment(analysis);
@@ -135,8 +141,10 @@ export class DashboardService {
       orderBy: { code: 'asc' },
       take: 10,
     });
+    const quotes = await this.registry.getQuotes(symbols.map((s) => s.code));
+    const byCode = new Map(quotes.map((q) => [q.symbol, q]));
     return symbols.map((s) => {
-      const q = this.generateQuote(s.code);
+      const q = byCode.get(s.code) ?? this.generateQuote(s.code);
       const dir = q.change >= 0 ? 'up' as const : 'down' as const;
       const arrow = q.change >= 0 ? '▲' : '▼';
       return {

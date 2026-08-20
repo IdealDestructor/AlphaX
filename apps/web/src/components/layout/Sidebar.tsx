@@ -8,11 +8,14 @@ import {
     BrainCircuit,
     Zap,
     TrendingUp,
+    Crown,
     X,
 } from "lucide-react";
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth";
+import { Badge } from "@/components/ui/Badge";
 
 const navItems = [
     { key: "overview", label: "市场总览", icon: LayoutDashboard, href: "/" },
@@ -21,7 +24,21 @@ const navItems = [
     { key: "analysis", label: "智能分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
     { key: "signals", label: "交易信号", icon: Zap, href: "/signals" },
     { key: "forecast", label: "概率预测", icon: TrendingUp, href: "/forecast" },
+    { key: "billing", label: "套餐与授权", icon: Crown, href: "/billing" },
 ] as const;
+
+const PLAN_LABEL: Record<string, string> = {
+  free: "免费版",
+  pro: "Pro",
+  enterprise: "Enterprise",
+  max: "Max",
+};
+const PLAN_TONE: Record<string, "neutral" | "bull" | "wait"> = {
+  free: "neutral",
+  pro: "bull",
+  enterprise: "wait",
+  max: "wait",
+};
 
 export function Sidebar({
     open,
@@ -39,6 +56,7 @@ export function Sidebar({
     }, [open, onClose]);
 
     const pathname = usePathname();
+    const { user, isAuthenticated } = useAuth();
 
     return (
         <>
@@ -99,13 +117,32 @@ export function Sidebar({
                 </nav>
 
                 <div className="flex items-center gap-3 border-t border-border p-4">
-                    <div className="grid h-8 w-8 place-items-center border border-border bg-bg-elevated text-xs font-semibold text-text-secondary">
-                        G
-                    </div>
-                    <div className="min-w-0">
-                        <div className="truncate text-sm font-medium">Guest User</div>
-                        <div className="text-xs text-text-muted">Pro · 席位 1/1</div>
-                    </div>
+                    {isAuthenticated && user ? (
+                        <>
+                            <div className="grid h-8 w-8 shrink-0 place-items-center border border-border bg-bg-elevated text-xs font-semibold text-text-secondary">
+                                {(user.displayName || user.email).charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0">
+                                <div className="truncate text-sm font-medium">{user.displayName || user.email}</div>
+                                <div className="mt-0.5">
+                                    <Badge tone={PLAN_TONE[user.plan] ?? "neutral"}>{PLAN_LABEL[user.plan] ?? user.plan}</Badge>
+                                </div>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="grid h-8 w-8 shrink-0 place-items-center border border-border bg-bg-elevated text-xs font-semibold text-text-secondary">
+                                G
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-sm font-medium">游客</div>
+                                <div className="mt-0.5 flex gap-2 text-xs">
+                                    <Link href="/login" onClick={onClose} className="text-accent hover:underline">登录</Link>
+                                    <Link href="/register" onClick={onClose} className="text-text-muted hover:text-text">注册</Link>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </aside>
         </>

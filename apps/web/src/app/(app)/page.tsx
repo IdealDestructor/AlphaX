@@ -9,13 +9,15 @@ import { PriceChart } from "@/features/dashboard/components/PriceChart";
 import { SignalsTable } from "@/features/dashboard/components/SignalsTable";
 import { SentimentPanel } from "@/features/dashboard/components/SentimentPanel";
 import { NewsList } from "@/features/dashboard/components/NewsList";
-import { useDashboard } from "@/features/dashboard/api";
+import { useDashboard, useLiveNews } from "@/features/dashboard/api";
+import type { NewsItem } from "@/features/dashboard/types";
 import { getAssetInfo } from "@/lib/assets";
 import { useSymbol } from "@/lib/symbol-context";
 
 export default function DashboardPage() {
   const { currentSymbol: symbol } = useSymbol();
   const { data, isLoading, isError, refetch } = useDashboard(symbol);
+  const liveNews = useLiveNews(symbol);
 
   return (
     <div className="mx-auto flex max-w-container flex-col gap-4">
@@ -28,22 +30,23 @@ export default function DashboardPage() {
           onRetry={() => refetch()}
         />
       ) : (
-        <PopulatedView data={data} symbol={symbol} />
+        <PopulatedView data={data} symbol={symbol} liveNews={liveNews.data ?? null} />
       )}
     </div>
   );
 }
 
-function PopulatedView({ data, symbol }: { data: NonNullable<ReturnType<typeof useDashboard>["data"]>; symbol: string }) {
+function PopulatedView({ data, symbol, liveNews }: { data: NonNullable<ReturnType<typeof useDashboard>["data"]>; symbol: string; liveNews: NewsItem[] | null }) {
   const info = getAssetInfo(symbol);
+  const newsItems = liveNews && liveNews.length > 0 ? liveNews : data.news;
   return (
     <>
       <TickerStrip items={data.ticker} />
       <KpiStrip kpi={data.kpi} symbol={symbol} />
 
-      {data.news.length > 0 && (
+      {newsItems.length > 0 && (
         <Panel title="新闻摘要">
-          <NewsList items={data.news} />
+          <NewsList items={newsItems} />
         </Panel>
       )}
 

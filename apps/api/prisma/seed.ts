@@ -42,7 +42,18 @@ async function main() {
   const passwordHash = await bcrypt.hash('demo123456', 10);
   const user = await prisma.user.upsert({
     where: { email: 'demo@alphax.com' },
-    update: {},
+    update: {
+      displayName: 'Demo User',
+      plan: 'pro',
+      currency: 'USD',
+      colorScheme: 'international',
+      notifications: {
+        priceAlerts: { email: true, webPush: true, telegram: false },
+        aiSignals: { email: true, webPush: false, telegram: false },
+        newsAlerts: { email: false, webPush: true, telegram: false },
+        systemUpdates: true,
+      },
+    },
     create: {
       email: 'demo@alphax.com',
       passwordHash,
@@ -51,6 +62,14 @@ async function main() {
       plan: 'pro',
       locale: 'zh-CN',
       timezone: 'Asia/Shanghai',
+      currency: 'USD',
+      colorScheme: 'international',
+      notifications: {
+        priceAlerts: { email: true, webPush: true, telegram: false },
+        aiSignals: { email: true, webPush: false, telegram: false },
+        newsAlerts: { email: false, webPush: true, telegram: false },
+        systemUpdates: true,
+      },
     },
   });
 
@@ -221,6 +240,20 @@ async function main() {
     });
   }
 
+
+  // Seed demo license keys (付费授权演示). 上线前请通过管理端生成并妥善保管。
+  const demoLicenses = [
+    { key: 'ALPHAX-PRO-DEMO-0001', plan: 'pro', maxActivations: 1 },
+    { key: 'ALPHAX-ENT-DEMO-0001', plan: 'enterprise', maxActivations: 1 },
+  ];
+  for (const l of demoLicenses) {
+    await prisma.license.upsert({
+      where: { key: l.key },
+      update: { plan: l.plan as any, maxActivations: l.maxActivations },
+      create: { key: l.key, plan: l.plan as any, maxActivations: l.maxActivations },
+    });
+  }
+
   console.log('Seed completed successfully');
   console.log(`  - ${symbolsData.length} symbols`);
   console.log(`  - ${newsItems.length} news articles`);
@@ -230,6 +263,10 @@ async function main() {
   console.log(`  - ${journalData.length} journal entries`);
   console.log(`  - ${watchlistSymbols.length} watchlist items`);
   console.log(`  - Demo user: demo@alphax.com / demo123456`);
+  console.log('  - 演示授权码:');
+  for (const l of demoLicenses) {
+    console.log(`      ${l.plan.padEnd(11)} ${l.key}`);
+  }
 }
 
 main()

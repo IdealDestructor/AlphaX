@@ -1,4 +1,12 @@
-import { IsString, IsOptional, MinLength, IsEmail } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MinLength,
+  IsEmail,
+  IsObject,
+  IsIn,
+  ValidateIf,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -31,4 +39,16 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   timezone?: string;
+
+  @IsOptional()
+  @IsIn(['USD', 'CNY', 'EUR', 'GBP', 'JPY', 'HKD', 'AUD'])
+  currency?: string;
+
+  @IsOptional()
+  @IsIn(['international', 'chinese'])
+  colorScheme?: string;
+
+  @IsOptional()
+  @IsObject()
+  notifications?: Record<string, any>;
 }

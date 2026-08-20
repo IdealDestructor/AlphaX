@@ -52,10 +52,21 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-/** datetime 字符串 → Unix 秒 (兼容 "2024-01-02" 与 "2024-01-02 15:30:00") */
-function parseDatetime(value: unknown): number | undefined {
+/**
+ * TwelveData datetime 字符串 → Unix 秒。
+ * 官方语义 (https://twelvedata.com/docs): 外汇/加密默认按 UTC 返回
+ * (如 "2026-08-20 03:00:00", 无时区后缀); 股票为交易所本地时间。
+ * 本平台只接外汇/金属 (XAU/USD, XAG/USD), 因此统一按 UTC 解析,
+ * 避免 Date.parse 依赖服务器本地时区 (如 Asia/Shanghai) 导致时间轴偏移。
+ * 兼容 "YYYY-MM-DD" 与 "YYYY-MM-DD HH:mm:ss" 两种格式。
+ */
+function parseUtcDatetime(value: unknown): number | undefined {
   if (typeof value !== 'string' || value.trim() === '') return undefined;
-  const parsed = Date.parse(value);
+  let s = value.trim().replace(' ', 'T');
+  if (!/[zZ]$|[+-]\d{2}:?\d{2}$/.test(s)) {
+    s = /^\d{4}-\d{2}-\d{2}$/.test(s) ? s + 'T00:00:00Z' : s + 'Z';
+  }
+  const parsed = Date.parse(s);
   if (!Number.isFinite(parsed)) return undefined;
   return Math.floor(parsed / 1000);
 }
@@ -160,7 +171,8 @@ function toQuote(raw: unknown, alphaSymbol: string): Quote {
   const close = num(raw.close) ?? 0;
   const change = num(raw.change) ?? 0;
   const changePercent = num(raw.percent_change) ?? 0;
-  const datetime = typeof raw.datetime === 'string' ? raw.datetime : new Date().toISOString();
+  const epochSec = parseUtcDatetime(raw.datetime);
+  const timestamp = epochSec !== undefined ? new Date(epochSec * 1000).toISOString() : new Date().toISOString();
   return {
     symbol: alphaSymbol,
     price: round2(close),
@@ -171,7 +183,7 @@ function toQuote(raw: unknown, alphaSymbol: string): Quote {
     open: round2(num(raw.open) ?? close),
     close: round2(close),
     volume: Math.round(num(raw.volume) ?? 0),
-    timestamp: new Date(datetime).toISOString(),
+    timestamp,
     source: 'twelve-data',
   };
 }
@@ -185,7 +197,7 @@ export function normalizeCandles(raw: unknown): Candle[] {
   const candles: Candle[] = [];
   for (const item of values) {
     if (!isRecord(item)) continue;
-    const time = parseDatetime(item.datetime);
+    const time = parseUtcDatetime(item.datetime);
     const open = num(item.open);
     const high = num(item.high);
     const low = num(item.low);

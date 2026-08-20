@@ -312,6 +312,31 @@
 - 为多空辩论/反思审计/复盘/资讯雷达提供统一 AI 底座
 
 ---
+
+## ADR-017：注册/登录/付费授权（模拟支付 + 授权码双通道，Stripe 可切换）
+
+| 项 | 内容 |
+|----|------|
+| Status | Accepted |
+| Date | 2026-08-20 |
+| 关联 | [AUTH_BILLING_TECHNICAL_PLAN](./AUTH_BILLING_TECHNICAL_PLAN.md) · [MONETIZATION](./MONETIZATION.md) |
+
+**上下文：** 登录/注册/设置仅 mock 或占位，付费授权无法闭环；生产要 Stripe，本地/演示要能跑通全流程。
+
+**决策：**
+
+- 认证统一返回 `{accessToken, refreshToken, expiresIn, user}`；refresh token 旋转存储，退出吊销。
+- 设置（币种/配色/通知/资料/密码/API Key）全部落库，前端 `/settings` 真实化（保留 `NEXT_PUBLIC_MOCK=settings` 回退）。
+- 付费授权双通道：**订阅订单**（`POST /billing/checkout` 建 Order → `/orders/:id/confirm` 本地模拟支付或 Stripe Checkout/Webhook）与**授权码**（`License` 表 + `POST /billing/license/activate`）。两通道统一写 `users.plan` + `subscriptions` + `entitlements`。
+- 权益门控后端强制：`RequirePlan` 守卫 + 配额校验（Free=10 Chat/日、5 自选、3 告警），前端仅做体验层。
+
+**后果：**
+
+- 本地/演示无 Stripe 也能验证完整付费授权闭环；生产切 `BILLING_PROVIDER=stripe` 即可。
+- 需要维护 Order/License 两张表与订单状态机、幂等（授权码一人一次）。
+- 门控覆盖面增加后，需要同步配额与测试面。
+---
+
 ## 新增 ADR 模板
 
 ```markdown
@@ -332,4 +357,5 @@
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md)
 - [CODING_RULES.md](./CODING_RULES.md)
 - [OPS.md](./OPS.md)
+
 

@@ -2,7 +2,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| Status | Proposed（待评审） |
+| Status | In Progress — P0 数据源 PoC 已部分落地（2026-08-20） |
 | Date | 2026-08-20 |
 | 参考项目 | `G:/SourceCode/tickflow-stock-panel` · `G:/SourceCode/financial-Research` |
 | 关联文档 | [ROADMAP](./ROADMAP.md) · [SYSTEM_DESIGN](./SYSTEM_DESIGN.md) · [AI_ARCHITECTURE](./AI_ARCHITECTURE.md) · [DATABASE](./DATABASE.md) · [todos](../todos.md) |

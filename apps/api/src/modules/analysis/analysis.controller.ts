@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Param, Query, UseGuards } from '@nestjs/common';
 import { AnalysisService } from './analysis.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { PlanGuard } from '../entitlements/plan.guard';
+import { RequirePlan } from '../entitlements/require-plan.decorator';
 
 @Controller('analysis')
 export class AnalysisController {
@@ -11,7 +13,9 @@ export class AnalysisController {
     return this.analysis.getAnalysis(symbol, timeframe || '1d');
   }
 
-  @Get(':symbol/history')
+  @UseGuards(JwtAuthGuard, PlanGuard)
+@RequirePlan('pro')
+@Get(':symbol/history')
   getHistory(
     @Param('symbol') symbol: string,
     @Query('timeframe') timeframe?: string,

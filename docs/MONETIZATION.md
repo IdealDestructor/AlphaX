@@ -178,3 +178,12 @@
 - [COMPETITOR_ANALYSIS.md](./COMPETITOR_ANALYSIS.md)
 - [PRD.md](./PRD.md)
 - [DATABASE.md](./DATABASE.md) `subscriptions` / `entitlements`
+
+---
+## 10. 落地技术方案（2026-08-20）
+
+- 注册/登录/设置/付费授权已按 [AUTH_BILLING_TECHNICAL_PLAN.md](./AUTH_BILLING_TECHNICAL_PLAN.md) 落地（含 ADR-017）。
+- 付费授权双通道：订阅订单（本地 simulate / 生产 Stripe 可切换）+ 授权码（License Key）。
+- 权益门控：`RequirePlan` 守卫 + 配额（Free=10 Chat/日、5 自选、3 告警；Pro=200/50/50；Enterprise 更高）。
+- 前端套餐与授权入口：`/billing`；升级引导在 `FORBIDDEN` 时自动弹出。
+
