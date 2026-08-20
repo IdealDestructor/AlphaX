@@ -92,13 +92,13 @@
 
 ### 注册 / 登录 / 付费授权（2026-08-20，技术方案见 docs/AUTH_BILLING_TECHNICAL_PLAN.md）
 - [x] 技术方案文档整理（AUTH_BILLING_TECHNICAL_PLAN.md + ADR-017 + API_SPEC/API_CLIENT/MONETIZATION 同步）
-- [ ] 后端：User 设置字段 + Order/License 表；auth 统一响应；/user/settings 落库
-- [ ] 后端：billing checkout/confirm/license/subscription/portal + 模拟支付 + Stripe 可选
-- [ ] 后端：Entitlements 权益门控（RequirePlan + 配额）
-- [ ] 前端：/login /register 页 + AuthProvider 对齐 + Topbar/Sidebar 用户区
-- [ ] 前端：/billing /billing/checkout 页
-- [ ] 前端：/settings 真实化（资料/密码/币种/配色/通知/API Key）
-- [ ] 本地全流程验证 + 文档最终同步
+- [x] 后端：User 设置字段 + Order/License 表；auth 统一响应；/user/settings 落库
+- [x] 后端：billing checkout/confirm/license/subscription/portal + 模拟支付 + Stripe 可选
+- [x] 后端：Entitlements 权益门控（RequirePlan + 配额：Chat 10/200/2000 · 自选 5/50/500 · 告警 3/50/500）
+- [x] 前端：/login /register 页 + AuthProvider 对齐 + Topbar/Sidebar 用户区
+- [x] 前端：/billing /billing/checkout 页
+- [x] 前端：/settings 真实化（资料/密码/币种/配色/通知/API Key + 403 升级引导）
+- [x] 本地全流程验证（注册→登录→设置→门控→模拟支付→授权码）+ typecheck/lint/test 绿
 
 ### 前后端对齐（后端已实现、前端待消费）
 - [ ] `/analysis/{symbol}/history` — 前端 `AnalysisHistory` 组件未接入
@@ -158,3 +158,4 @@
 
 ### 2026-08-20 — P0 数据源接入
 - TickFlow 接入 → 三类免费源调研落定 → 新增 Binance / Treasury / TwelveData → Registry 多 Provider 路由 + `/market/data-source`
+

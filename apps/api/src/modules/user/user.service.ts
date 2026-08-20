@@ -23,7 +23,7 @@ export class UserService {
     userId: string,
     data: { displayName?: string; locale?: string; timezone?: string },
   ) {
-    return this.prisma.user.update({
+    const updated = await this.prisma.user.update({
       where: { id: userId },
       data: {
         displayName: data.displayName?.trim(),
@@ -31,6 +31,8 @@ export class UserService {
         timezone: data.timezone,
       },
     });
+    const { passwordHash, ...profile } = updated;
+    return profile;
   }
 
   async updatePassword(userId: string, oldPassword: string, newPassword: string) {
@@ -69,7 +71,9 @@ export class UserService {
       notifications?: Prisma.InputJsonValue;
     },
   ) {
-    return this.prisma.user.update({ where: { id: userId }, data });
+    const updated = await this.prisma.user.update({ where: { id: userId }, data });
+    const { passwordHash, ...settings } = updated;
+    return settings;
   }
 
   async getWatchlist(userId: string) {

@@ -121,3 +121,4 @@ keeps the instant non-streaming path (`useSendMessage`).
 - [SYSTEM_DESIGN.md](./SYSTEM_DESIGN.md) — System architecture
 - [DEVELOPMENT_GUIDE.md](./DEVELOPMENT_GUIDE.md) — Local development setup
 - [ARCHITECTURE_DECISIONS.md](./ARCHITECTURE_DECISIONS.md) — Technical decision records
+
