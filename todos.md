@@ -79,7 +79,8 @@
 - [x] **Forecast 去随机**：pUp/pDown/median/band 改由真实日K（ATR 波动率 + RSI/EMA 方向偏置）确定性计算，置信度由数据完整度决定
 - [x] **Analysis 去随机**：trend/action/levels/evidence 改由真实指标规则引擎（EMA/RSI/MACD/BB/ATR）确定性生成，`modelVersion=rule-v2.1`（真实 LLM 待 P2）
 - [x] **Dashboard 联动**：市场情绪分读 CNN、ETF/COT 字段读真实 Smart Money，去掉 `Math.random` 编造
-- [ ] **仍为估算/待 P2**：Chat mockAiResponse（LLM）、social 情绪分量、ETF 净流入/央行购金（无可靠免费 API）
+- [x] **Chat 接入真实 LLM**：OpenAI 兼容 `AI_API_KEY` 环境变量（`AI_BASE_URL` / `AI_MODEL` / `AI_TIMEOUT_MS` / `AI_ENABLED` 可配），SSE 流式透传真实 token；未配置自动回退模拟回复
+- [ ] **仍为估算/待 P2**：social 情绪分量、ETF 净流入/央行购金（无可靠免费 API）
 - [ ] 待本地验证：CFTC / CNN 端点 curl 复核（沙箱无外网）
 
 ### 前后端对齐（2026-08-21 落地，typecheck / lint / build / test 绿）

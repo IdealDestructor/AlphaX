@@ -50,7 +50,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
   if (isError)
     return (
       <ErrorState
-        title="智能分析不可用"
+        title="AI 分析不可用"
         description="分析服务暂时不可用，请稍后重试。"
         onRetry={() => refetch()}
       />
@@ -101,7 +101,7 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
       {/* Overview tab */}
       {tab === "overview" && (
-        <Panel title={`${info.icon} ${info.name} 智能分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
+        <Panel title={`${info.icon} ${info.name} AI 分析`} subtitle={`${symbol} · ${tf}`} className="border-t-2 border-t-accent">
           <AnalysisOverview
             entry={data.current}
             onRefresh={() => {
@@ -124,13 +124,13 @@ function AnalysisContent({ symbol }: { symbol: string }) {
 
       {/* History tab */}
       {tab === "history" && (
-        <Panel title="历史智能分析" subtitle="近 7 天所有分析记录">
+        <Panel title="历史AI 分析" subtitle="近 7 天所有分析记录">
           <AnalysisHistory history={data.history} />
         </Panel>
       )}
 
       <p className="border-t border-border-subtle pt-4 text-xs text-text-muted">
-        免责声明：AlphaX 提供的智能分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。
+        免责声明：AlphaX 提供的 AI 分析与信号仅供研究与决策辅助，不构成投资建议。市场有风险，交易需谨慎。
       </p>
     </div>
   );

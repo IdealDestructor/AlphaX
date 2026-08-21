@@ -27,7 +27,7 @@ const navItems = [
     { key: "overview", label: "市场总览", icon: LayoutDashboard, href: "/" },
     { key: "market", label: "实时行情", icon: LineChart, href: "/market/XAUUSD" },
     { key: "news", label: "新闻摘要", icon: Newspaper, href: "/news" },
-    { key: "analysis", label: "智能分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
+    { key: "analysis", label: "AI 分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
     { key: "signals", label: "交易信号", icon: Zap, href: "/signals" },
     { key: "forecast", label: "概率预测", icon: TrendingUp, href: "/forecast" },
     { key: "watchlist", label: "自选", icon: Star, href: "/watchlist" },

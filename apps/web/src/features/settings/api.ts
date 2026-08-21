@@ -5,6 +5,7 @@ import { apiClient } from "@/lib/api/client";
 import { ApiError } from "@/lib/api/errors";
 import { featureIsMock } from "@/lib/api/mock";
 import { fetchMockSettings, fetchMockUpdateSettings } from "./mock";
+import { normalizeNotificationSettings, type DeepPartial } from "./normalize";
 import type { SettingsPageData, ApiKey, ProfileSettings } from "./types";
 
 interface BackendProfile {
@@ -72,7 +73,12 @@ async function fetchSettings(): Promise<SettingsPageData> {
       displayCurrency: defaults.currency.displayCurrency,
     },
     colorScheme: settings.colorScheme || defaults.colorScheme,
-    notifications: (settings.notifications as unknown as SettingsPageData["notifications"]) || defaults.notifications,
+    // 后端可能返回 null / {} / 部分字段（新用户 DB 默认值为 {}），必须与默认值合并，
+    // 否则通知设置组件读取 value[section][channel] 时会对 undefined 取属性而崩溃。
+    notifications: normalizeNotificationSettings(
+      settings.notifications as DeepPartial<SettingsPageData["notifications"]> | null | undefined,
+      defaults.notifications,
+    ),
     apiKeys,
     apiKeysLocked,
     profile: profileData,

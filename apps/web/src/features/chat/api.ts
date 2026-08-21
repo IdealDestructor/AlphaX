@@ -78,6 +78,72 @@ export function useChatPageData() {
   });
 }
 
+interface CreateSessionInput {
+  title?: string;
+  symbol?: string;
+}
+
+export function useCreateSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateSessionInput): Promise<ChatSession> => {
+      if (featureIsMock("chat")) {
+        await new Promise((r) => setTimeout(r, 300));
+        const now = new Date().toISOString();
+        return {
+          id: `sess_local_${Date.now()}`,
+          title: input.title || "新对话",
+          symbol: input.symbol || "XAUUSD",
+          messages: [],
+          createdAt: now,
+          updatedAt: now,
+          model: "fusion-v2.1-sim",
+          messageCount: 0,
+        };
+      }
+      const raw = await apiClient.post<BackendSession>("/chat/sessions", {
+        title: input.title,
+        symbol: input.symbol,
+      });
+      return mapSession(raw);
+    },
+    onSuccess: (session) => {
+      queryClient.setQueryData<ChatPageData>(["chat"], (prev) => {
+        if (!prev) {
+          return { sessions: [session], currentSessionId: session.id };
+        }
+        return {
+          sessions: [session, ...prev.sessions],
+          currentSessionId: session.id,
+        };
+      });
+    },
+  });
+}
+
+export function useDeleteSession() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (featureIsMock("chat")) return;
+      await apiClient.delete<{ ok: boolean }>(`/chat/sessions/${id}`);
+    },
+    onSuccess: (_data, id) => {
+      queryClient.setQueryData<ChatPageData>(["chat"], (prev) => {
+        if (!prev) return prev;
+        const sessions = prev.sessions.filter((s) => s.id !== id);
+        return {
+          sessions,
+          currentSessionId:
+            prev.currentSessionId === id ? sessions[0]?.id ?? "" : prev.currentSessionId,
+        };
+      });
+    },
+  });
+}
+
 interface SendMessageInput {
   sessionId: string;
   content: string;
@@ -125,7 +191,7 @@ export function useSendMessage() {
         const reply: ChatMessage = {
           id: `m_auto_${Date.now()}`,
           role: "assistant",
-          content: `已收到您的消息：「${content}」\n\n当前模拟模式，智能分析管线尚未接入。您的提问已记录，正式上线后将调用多 Agent 融合分析引擎进行实时回答。\n\n*如需查看完整智能分析能力，请前往「智能分析」页面。*`,
+          content: `已收到您的消息：「${content}」\n\n当前模拟模式，AI 分析管线尚未接入。您的提问已记录，正式上线后将调用多 Agent 融合分析引擎进行实时回答。\n\n*如需查看完整AI 分析能力，请前往「AI 分析」页面。*`,
           timestamp: new Date().toISOString(),
           tokens: 64,
           model: "fusion-v2.1-sim",

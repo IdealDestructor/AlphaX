@@ -46,8 +46,9 @@ export class ChatController {
   }
 
   @Delete('sessions/:id')
-  deleteSession(@CurrentUser('id') userId: string, @Param('id') id: string) {
-    return this.chat.deleteSession(userId, id);
+  async deleteSession(@CurrentUser('id') userId: string, @Param('id') id: string) {
+    await this.chat.deleteSession(userId, id);
+    return { ok: true };
   }
 
   @Post('messages')
@@ -92,13 +93,12 @@ export class ChatController {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    const tokens = await this.chat.streamReply(dto.content, session.symbol);
     let fullContent = '';
 
-    for (const token of tokens) {
+    for await (const token of this.chat.streamReply(dto.content, session.symbol)) {
       fullContent += token;
       res.write(`data: ${JSON.stringify({ token, sessionId: activeId })}\n\n`);
-      await new Promise((r) => setTimeout(r, 50));
+      await new Promise((r) => setTimeout(r, 30));
     }
 
     await this.chat.addMessage(activeId, 'assistant', fullContent);

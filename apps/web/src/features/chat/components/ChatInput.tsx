@@ -41,9 +41,9 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-end gap-3 border-t border-border bg-bg-panel p-4"
+      className="flex items-center gap-3 border-t border-border bg-bg-panel p-4"
     >
-      <div className="relative flex-1">
+      <div className="relative flex-1 h-[44px]">
         <textarea
           ref={textareaRef}
           value={value}
@@ -55,7 +55,7 @@ export function ChatInput({ onSend, disabled, placeholder }: ChatInputProps) {
           placeholder={placeholder ?? "问 AlphaX 关于市场的问题…"}
           disabled={disabled}
           rows={1}
-          className="min-h-[44px] w-full resize-none border border-border bg-bg px-4 py-3 pr-12 text-sm text-text outline-none placeholder:text-text-muted focus:border-accent disabled:opacity-55"
+          className="h-[44px] w-full resize-none border border-border bg-bg px-4 py-[11px] pr-12 text-sm leading-[20px] text-text outline-none placeholder:text-text-muted focus:border-accent disabled:opacity-55"
         />
       </div>
       <button

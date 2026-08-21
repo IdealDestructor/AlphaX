@@ -72,7 +72,7 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 ### 3. Real-time Market 🔄 P0 进行中
 多品种（Gold / Silver / DXY / US10Y / BTC / Nasdaq / SP500 / Oil / VIX）、多周期（1m ~ Monthly）、完整技术指标库。已接入 4 个真实数据源（TwelveData / Binance / Treasury / TickFlow），未覆盖标的一键回退模拟；真实端点待本地验证。
 
-### 4. AI Signals / Forecast / Chat ✅ API 已实现（AI 为 mock/fallback）
+### 4. AI Signals / Forecast / Chat ✅ API 已实现（Chat 已支持真实 LLM：配置 `AI_API_KEY` 环境变量即可；Signals/Forecast 由真实行情确定性生成）
 实时信号、概率带预测、自然语言问答助手；Chat 已支持 SSE 流式。
 
 ### 5. News · Smart Money · Sentiment ✅ 接口 + 页面已实现（SM 的 COT 已接 CFTC 真实源；情绪已接 CNN Fear & Greed）

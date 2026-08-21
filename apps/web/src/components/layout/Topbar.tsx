@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/Badge";
 const routeTitles: Record<string, string> = {
   "/": "市场总览",
   "/market": "实时行情",
-  "/analysis": "智能分析",
+  "/analysis": "AI 分析",
   "/signals": "交易信号",
   "/forecast": "概率预测",
   "/news": "新闻摘要",

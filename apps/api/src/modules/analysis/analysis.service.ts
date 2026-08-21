@@ -3,13 +3,17 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MarketService } from '../market/market.service';
 
 /**
- * 智能分析生成。
+ * AI 分析生成。
  *
  * 真实化进度（2026-08-21）：不再 Math.random 编造结论。
  * - trend/action/confidence/levels 由真实 K 线与指标（EMA/RSI/MACD/BB/ATR）确定性计算
  * - reasons/evidence 只引用真实指标事实，不编造 pattern
  * - modelVersion 标注 `rule-v2.1`（规则引擎）；真实 LLM 多 Agent 推理在 P2 接入 apps/ai
  */
+
+/** 分析结果新鲜度窗口：超过 1 小时视为过期，下次访问自动用规则引擎基于最新行情重算。 */
+const ANALYSIS_STALE_MS = 60 * 60 * 1000;
+
 @Injectable()
 export class AnalysisService {
   constructor(
@@ -26,11 +30,19 @@ export class AnalysisService {
       orderBy: { createdAt: 'desc' },
     });
 
-    if (existing) {
+    // 新鲜度窗口内直接返回持久化结果；过期则用规则引擎重算，
+    // 避免首页/分析页一直停留在种子数据的固定置信度（如 55%）。
+    if (existing && this.isFresh(existing)) {
       return this.formatAnalysis(existing, symbol);
     }
 
     return this.generateAndSave(symbolRecord, symbol, timeframe);
+  }
+
+  /** 判断已持久化分析是否仍在新鲜度窗口内。 */
+  private isFresh(a: any): boolean {
+    const ageMs = Date.now() - new Date(a.createdAt).getTime();
+    return Number.isFinite(ageMs) && ageMs >= 0 && ageMs < ANALYSIS_STALE_MS;
   }
 
   async getHistory(symbol: string, timeframe: string = '1d', limit: number = 20) {

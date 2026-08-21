@@ -1,19 +1,28 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useChatUI } from "@/lib/chat-ui-context";
 import { useSymbol } from "@/lib/symbol-context";
 import { featureIsMock } from "@/lib/api/mock";
 import { SkeletonPanel, EmptyState } from "@/components/state/States";
 import { ChatWindow } from "./ChatWindow";
-import { useChatPageData, useSendMessage, useSendMessageStream } from "../api";
+import {
+  useChatPageData,
+  useSendMessage,
+  useSendMessageStream,
+  useCreateSession,
+  useDeleteSession,
+} from "../api";
 
 export function ChatDrawer() {
   const { open, closeChat } = useChatUI();
   const { data, isLoading } = useChatPageData();
   const sendMessage = useSendMessage();
   const sendStream = useSendMessageStream();
+  const createSession = useCreateSession();
+  const deleteSession = useDeleteSession();
   const [currentId, setCurrentId] = useState<string | null>(null);
   const { currentSymbol: symbol } = useSymbol();
 
@@ -31,12 +40,22 @@ export function ChatDrawer() {
   }, []);
 
   const handleNewSession = useCallback(() => {
-    console.log("创建新会话，品种:", symbol);
-  }, [symbol]);
+    createSession.mutate(
+      { symbol },
+      { onSuccess: (session) => setCurrentId(session.id) },
+    );
+  }, [createSession, symbol]);
 
-  const handleDeleteSession = useCallback((_id: string) => {
-    // Stub — 后续将删除会话
-  }, []);
+  const handleDeleteSession = useCallback(
+    (id: string) => {
+      deleteSession.mutate(id);
+      if (id === (currentId ?? data?.currentSessionId)) {
+        const next = data?.sessions.find((s) => s.id !== id);
+        setCurrentId(next?.id ?? null);
+      }
+    },
+    [currentId, data?.currentSessionId, data?.sessions, deleteSession],
+  );
 
   const handleSendMessage = useCallback(
     (content: string) => {
@@ -82,7 +101,15 @@ export function ChatDrawer() {
           </div>
         ) : !data || data.sessions.length === 0 ? (
           <div className="flex h-full flex-col">
-            <div className="flex items-center justify-end border-b border-border px-4 py-3">
+            <div className="flex items-center justify-end gap-1 border-b border-border px-4 py-3">
+              <button
+                type="button"
+                onClick={handleNewSession}
+                className="flex items-center gap-1.5 rounded-sm px-2.5 py-1.5 text-sm text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text"
+              >
+                <Plus size={15} />
+                新建对话
+              </button>
               <button
                 type="button"
                 onClick={closeChat}

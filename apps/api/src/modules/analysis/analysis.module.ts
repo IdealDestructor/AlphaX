@@ -7,5 +7,6 @@ import { MarketModule } from '../market/market.module';
   imports: [MarketModule],
   controllers: [AnalysisController],
   providers: [AnalysisService],
+  exports: [AnalysisService],
 })
 export class AnalysisModule {}

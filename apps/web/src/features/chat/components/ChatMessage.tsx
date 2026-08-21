@@ -1,5 +1,6 @@
 import { cn } from "@/lib/cn";
 import { Bot, User } from "lucide-react";
+import { AiAvatar } from "./AiAvatar";
 import type { ChatMessage as ChatMessageType } from "../types";
 
 export function ChatMessageBubble({ message }: { message: ChatMessageType }) {
@@ -13,18 +14,20 @@ export function ChatMessageBubble({ message }: { message: ChatMessageType }) {
         isUser ? "flex-row-reverse" : "flex-row",
       )}
     >
-      <div
-        className={cn(
-          "grid h-8 w-8 shrink-0 place-items-center rounded-sm border text-xs",
-          isUser
-            ? "border-accent/40 bg-accent/10 text-accent"
-            : isSystem
-              ? "border-warning/40 bg-warning/10 text-warning"
-              : "border-border bg-bg-elevated text-text-secondary",
-        )}
-      >
-        {isUser ? <User size={14} /> : <Bot size={14} />}
-      </div>
+      {isUser || isSystem ? (
+        <div
+          className={cn(
+            "grid h-8 w-8 shrink-0 place-items-center rounded-sm border text-xs",
+            isUser
+              ? "border-accent/40 bg-accent/10 text-accent"
+              : "border-warning/40 bg-warning/10 text-warning",
+          )}
+        >
+          {isUser ? <User size={14} /> : <Bot size={14} />}
+        </div>
+      ) : (
+        <AiAvatar />
+      )}
 
       <div className={cn("flex max-w-[75%] flex-col gap-1", isUser && "items-end")}>
         <div

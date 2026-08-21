@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { MarketDataRegistry } from '../market/providers/registry';
 import { SentimentService } from '../sentiment/sentiment.service';
 import { SmartMoneyService } from '../smart-money/smart-money.service';
+import { AnalysisService } from '../analysis/analysis.service';
 
 /**
  * 首页看板。
@@ -16,6 +17,7 @@ export class DashboardService {
     private registry: MarketDataRegistry,
     private sentiment: SentimentService,
     private smartMoney: SmartMoneyService,
+    private analysis: AnalysisService,
   ) {}
 
   async getDashboard(symbol: string) {
@@ -25,7 +27,7 @@ export class DashboardService {
     }
 
     const [analysis, signals, newsList, quotes, marketSentiment, smart] = await Promise.all([
-      this.getAnalysis(symbolRecord),
+      this.analysis.getAnalysis(symbolRecord.code, '4h'),
       this.getSignals(symbolRecord),
       this.getNews(symbol),
       this.registry.getQuotes([symbolRecord.code]),
@@ -46,12 +48,12 @@ export class DashboardService {
         symbol: symbolRecord.code,
         trend: analysis?.trend ?? 'neutral',
         action: analysis?.action === 'hold' ? 'wait' : (analysis?.action ?? 'wait'),
-        confidence: analysis ? Math.round(analysis.confidence.toNumber() * 100) : 55,
+        confidence: analysis ? Math.round(analysis.confidence * 100) : 55,
         riskLevel: analysis?.riskLevel ?? 'medium',
         levels: {
-          entry: analysis?.entry?.toFixed(1) ?? '—',
-          stopLoss: analysis?.stopLoss?.toFixed(1) ?? '—',
-          takeProfit: analysis?.takeProfit?.toFixed(1) ?? '—',
+          entry: analysis?.entry != null ? analysis.entry.toFixed(1) : '—',
+          stopLoss: analysis?.stopLoss != null ? analysis.stopLoss.toFixed(1) : '—',
+          takeProfit: analysis?.takeProfit != null ? analysis.takeProfit.toFixed(1) : '—',
         },
         reasons: Array.isArray(analysis?.reasons)
           ? analysis.reasons
@@ -60,7 +62,7 @@ export class DashboardService {
           ? analysis.evidence.slice(0, 5)
           : [],
         updatedAt: `更新 ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`,
-        model: (analysis?.modelVersion as { version?: string } | null | undefined)?.version ?? 'fusion-v2.1',
+        model: (analysis?.modelVersions as { version?: string } | null | undefined)?.version ?? 'fusion-v2.1',
       },
       signals: signals.map((s) => ({
         time: s.createdAt
@@ -85,13 +87,6 @@ export class DashboardService {
       })),
       updatedAt: `更新于 ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`,
     };
-  }
-
-  private async getAnalysis(symbolRecord: any) {
-    return this.prisma.aiAnalysis.findFirst({
-      where: { symbolId: symbolRecord.id },
-      orderBy: { createdAt: 'desc' },
-    });
   }
 
   private async getSignals(symbolRecord: any) {
@@ -132,14 +127,14 @@ export class DashboardService {
   }
 
   private buildKpi(quote: any, analysis: any, marketSentiment: Awaited<ReturnType<SentimentService['buildMarketSentiment']>>) {
-    const confidence = analysis ? Math.round((analysis.confidence?.toNumber() ?? 0.5) * 100) : 50;
+    const confidence = analysis ? Math.round((analysis.confidence ?? 0.5) * 100) : 50;
     const sentimentScore = marketSentiment?.score;
     return {
       price: quote.price,
       priceChangeAbs: quote.change,
       priceChangePct: quote.changePercent,
       confidence,
-      confidenceDelta: analysis && analysis.confidence ? Math.round((analysis.confidence.toNumber() - 0.5) * 20) : 0,
+      confidenceDelta: analysis && analysis.confidence != null ? Math.round((analysis.confidence - 0.5) * 20) : 0,
       riskLevel: analysis?.riskLevel ?? 'medium',
       atr: Math.round(this.basePrice(quote.symbol) * 0.008 * 100) / 100,
       sentiment: sentimentScore != null ? Math.round(sentimentScore * 25 + 50) : null,
