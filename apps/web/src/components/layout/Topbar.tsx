@@ -16,6 +16,12 @@ const routeTitles: Record<string, string> = {
   "/forecast": "概率预测",
   "/news": "新闻摘要",
   "/alerts": "价格告警",
+  "/watchlist": "自选",
+  "/sentiment": "市场情绪",
+  "/smart-money": "聪明钱",
+  "/journal": "交易日志",
+  "/tools": "交易工具",
+  "/enterprise": "企业工作台",
   "/settings": "设置",
   "/billing": "套餐与授权",
 };
@@ -51,7 +57,13 @@ export function Topbar({
   const showAssetSwitcher =
     !pathname.startsWith("/alerts") &&
     !pathname.startsWith("/settings") &&
-    !pathname.startsWith("/billing");
+    !pathname.startsWith("/billing") &&
+    !pathname.startsWith("/watchlist") &&
+    !pathname.startsWith("/journal") &&
+    !pathname.startsWith("/tools") &&
+    !pathname.startsWith("/sentiment") &&
+    !pathname.startsWith("/smart-money") &&
+    !pathname.startsWith("/enterprise");
 
   const symbolsList = ASSETS.map((a) => a.symbol).join("、");
 

@@ -49,13 +49,21 @@ export interface MarketDataProvider {
   getCandles(symbol: string, interval: string, limit: number): Promise<Candle[]>;
 }
 
-/** 单个 Provider 的健康状态 */
+/** 单个 Provider 的健康状态（含熔断/限流信息） */
 export interface ProviderStatus {
   name: MarketDataSource;
   configured: boolean;
   enabled: boolean;
   live: boolean;
   lastError: string | null;
+  /** 连续失败次数（熔断前累计） */
+  failures: number;
+  /** 熔断剩余秒数（0 = 未熔断） */
+  cooldownSeconds: number;
+  /** 是否因串行限流被本次跳过 */
+  rateLimited: boolean;
+  /** 最近一次成功时间 */
+  lastSuccessAt: string | null;
 }
 
 export interface DataSourceStatus {
@@ -71,4 +79,5 @@ export interface DataSourceStatus {
   /** 各 Provider 的配置与健康状态 */
   providers: ProviderStatus[];
 }
+
 

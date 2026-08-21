@@ -180,12 +180,17 @@ model LicenseRedemption {
 
 
 model Symbol {
-  id         String  @id @default(uuid()) @db.Uuid
-  code       String  @unique
-  name       String
-  assetClass String  @map("asset_class")
-  tickSize   Decimal? @map("tick_size")
-  isActive   Boolean @default(true) @map("is_active")
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  assetClass  String   @map("asset_class")
+  tickSize    Decimal? @map("tick_size")
+  exchange    String?
+  market      String?
+  currency    String   @default("USD")
+  timezone    String   @default("UTC")
+  priceSource String   @map("price_source")
+  isActive    Boolean  @default(true) @map("is_active")
 
   analyses    AiAnalysis[]
   signals     Signal[]
@@ -384,3 +389,4 @@ model ApiKey {
 
   @@map("api_keys")
 }
+

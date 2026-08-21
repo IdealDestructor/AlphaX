@@ -38,9 +38,20 @@ export function KpiStrip({ kpi, symbol }: { kpi: Kpi; symbol?: string }) {
         <p className="text-xs text-text-muted">建议仓位 ≤ 账户 1.5%</p>
       </KpiCell>
 
-      <KpiCell label="情绪指数" value={<span className={kpi.sentiment >= 50 ? "text-bullish" : "text-bearish"}>{kpi.sentiment}</span>}>
-        <p className={cn("font-mono text-sm", kpi.sentiment >= 50 ? "text-bullish" : "text-bearish")}>{kpi.sentimentLabel}</p>
-        <p className="text-xs text-text-muted">新闻 + COT + ETF 合成</p>
+      <KpiCell
+        label="情绪指数"
+        value={
+          kpi.sentiment != null ? (
+            <span className={kpi.sentiment >= 50 ? "text-bullish" : "text-bearish"}>{kpi.sentiment}</span>
+          ) : (
+            <span className="text-text-muted">—</span>
+          )
+        }
+      >
+        <p className={cn("font-mono text-sm", kpi.sentiment != null && (kpi.sentiment >= 50 ? "text-bullish" : "text-bearish"))}>
+          {kpi.sentimentLabel}
+        </p>
+        <p className="text-xs text-text-muted">CNN Fear & Greed</p>
       </KpiCell>
     </section>
   );
@@ -67,3 +78,4 @@ function KpiCell({
     </article>
   );
 }
+

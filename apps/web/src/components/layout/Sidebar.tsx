@@ -9,6 +9,12 @@ import {
     Zap,
     TrendingUp,
     Crown,
+    Star,
+    Activity,
+    Landmark,
+    NotebookPen,
+    Calculator,
+    Building2,
     X,
 } from "lucide-react";
 import { useEffect } from "react";
@@ -24,6 +30,12 @@ const navItems = [
     { key: "analysis", label: "智能分析", icon: BrainCircuit, href: "/analysis/XAUUSD" },
     { key: "signals", label: "交易信号", icon: Zap, href: "/signals" },
     { key: "forecast", label: "概率预测", icon: TrendingUp, href: "/forecast" },
+    { key: "watchlist", label: "自选", icon: Star, href: "/watchlist" },
+    { key: "sentiment", label: "市场情绪", icon: Activity, href: "/sentiment" },
+    { key: "smart-money", label: "聪明钱", icon: Landmark, href: "/smart-money" },
+    { key: "journal", label: "交易日志", icon: NotebookPen, href: "/journal" },
+    { key: "tools", label: "交易工具", icon: Calculator, href: "/tools" },
+    { key: "enterprise", label: "企业", icon: Building2, href: "/enterprise" },
     { key: "billing", label: "套餐与授权", icon: Crown, href: "/billing" },
 ] as const;
 

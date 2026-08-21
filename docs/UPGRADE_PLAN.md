@@ -2,8 +2,8 @@
 
 | 字段 | 值 |
 |------|-----|
-| Status | In Progress — P0 数据源 PoC 已部分落地（2026-08-20） |
-| Date | 2026-08-20 |
+| Status | In Progress — P0 数据源 PoC 收尾中：真实行情 + 熔断/主备切换/限流 + 内存 TTL 缓存 + RSS 摄入 + Smart Money COT(CFTC) / 情绪(CNN) 真实化 + 前端 6 页对接（2026-08-21） |
+| Date | 2026-08-21 |
 | 参考项目 | `G:/SourceCode/tickflow-stock-panel` · `G:/SourceCode/financial-Research` |
 | 关联文档 | [ROADMAP](./ROADMAP.md) · [SYSTEM_DESIGN](./SYSTEM_DESIGN.md) · [AI_ARCHITECTURE](./AI_ARCHITECTURE.md) · [DATABASE](./DATABASE.md) · [todos](../todos.md) |
 
@@ -17,7 +17,7 @@ AlphaX 目前是 **mock-first 演示架构**：
 
 - 行情报价 / K线 / 指标：已接入 **TickFlow** 真实源（`market/providers/`，Key 配置于 `apps/api/.env`），未映射/失败的标的自动回退 `Math.random()` 模拟（前端 15s 轮询），`GET /market/data-source` 可查主源与降级状态
 - AI 分析 / 预测 / 信号 / 情绪 / Smart Money：本地随机生成或种子数据
-- 唯一真实数据：新闻 RSS（Google News / Kitco / CoinDesk / CNBC）
+- 真实数据：新闻 RSS · 行情（4 Provider）· Smart Money COT（CFTC）· 市场情绪（CNN Fear & Greed）；AI 分析/预测已改为基于真实行情的规则计算（LLM 待 P2）
 - 无 WebSocket、无 `apps/ai` Python 服务、无本地数据湖、无回测/监控/复盘
 
 ### 1.2 与参考项目差距
@@ -258,3 +258,5 @@ apps/ai/
 ## 8. 落地清单
 
 > 对应 [todos.md](../todos.md)「整体升级方案（2026-08）」章节，按阶段拆解为可勾选任务。
+
+

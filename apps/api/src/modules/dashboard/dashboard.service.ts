@@ -1,12 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MarketDataRegistry } from '../market/providers/registry';
+import { SentimentService } from '../sentiment/sentiment.service';
+import { SmartMoneyService } from '../smart-money/smart-money.service';
 
+/**
+ * 首页看板。
+ * 真实化进度（2026-08-21）：市场情绪分接入 CNN Fear & Greed（真实）；ETF/COT 字段接入真实 Smart Money；
+ * 不再 Math.random 编造 sentiment/etfInflow/cotChange。
+ */
 @Injectable()
 export class DashboardService {
   constructor(
     private prisma: PrismaService,
     private registry: MarketDataRegistry,
+    private sentiment: SentimentService,
+    private smartMoney: SmartMoneyService,
   ) {}
 
   async getDashboard(symbol: string) {
@@ -15,18 +24,20 @@ export class DashboardService {
       throw new NotFoundException(`Symbol ${symbol} not found`);
     }
 
-    const [analysis, signals, newsList, quotes] = await Promise.all([
+    const [analysis, signals, newsList, quotes, marketSentiment, smart] = await Promise.all([
       this.getAnalysis(symbolRecord),
       this.getSignals(symbolRecord),
       this.getNews(symbol),
       this.registry.getQuotes([symbolRecord.code]),
+      this.sentiment.buildMarketSentiment(),
+      this.smartMoney.getSmartMoneyBySymbol('XAUUSD'),
     ]);
 
     // Market overview quotes: prefer real data sources, registry falls back to mock on failure
     const quote = quotes[0] ?? this.generateQuote(symbolRecord.code);
-    const kpi = this.buildKpi(quote, analysis);
+    const kpi = this.buildKpi(quote, analysis, marketSentiment);
     const ticker = await this.getTicker();
-    const sentiment = this.buildSentiment(analysis);
+    const sentiment = this.buildSentiment(marketSentiment, smart);
 
     return {
       kpi,
@@ -49,7 +60,7 @@ export class DashboardService {
           ? analysis.evidence.slice(0, 5)
           : [],
         updatedAt: `更新 ${new Date().toLocaleTimeString('zh-CN', { hour12: false })}`,
-        model: 'fusion-v2.1',
+        model: (analysis?.modelVersion as { version?: string } | null | undefined)?.version ?? 'fusion-v2.1',
       },
       signals: signals.map((s) => ({
         time: s.createdAt
@@ -120,18 +131,19 @@ export class DashboardService {
     return prices[code] || 100;
   }
 
-  private buildKpi(quote: any, analysis: any) {
+  private buildKpi(quote: any, analysis: any, marketSentiment: Awaited<ReturnType<SentimentService['buildMarketSentiment']>>) {
     const confidence = analysis ? Math.round((analysis.confidence?.toNumber() ?? 0.5) * 100) : 50;
+    const sentimentScore = marketSentiment?.score;
     return {
       price: quote.price,
       priceChangeAbs: quote.change,
       priceChangePct: quote.changePercent,
       confidence,
-      confidenceDelta: Math.round((Math.random() - 0.3) * 12),
+      confidenceDelta: analysis && analysis.confidence ? Math.round((analysis.confidence.toNumber() - 0.5) * 20) : 0,
       riskLevel: analysis?.riskLevel ?? 'medium',
       atr: Math.round(this.basePrice(quote.symbol) * 0.008 * 100) / 100,
-      sentiment: Math.round(50 + (Math.random() - 0.5) * 30),
-      sentimentLabel: '综合市场情绪评估',
+      sentiment: sentimentScore != null ? Math.round(sentimentScore * 25 + 50) : null,
+      sentimentLabel: sentimentScore != null ? (marketSentiment?.rating ?? '综合市场情绪') : '情绪数据暂不可用',
     };
   }
 
@@ -156,15 +168,25 @@ export class DashboardService {
     });
   }
 
-  private buildSentiment(analysis: any) {
-    const score = Math.round(50 + (Math.random() - 0.5) * 30);
+  /** 市场情绪 + 聪明钱（真实 COT）驱动，不再随机。 */
+  private buildSentiment(
+    marketSentiment: Awaited<ReturnType<SentimentService['buildMarketSentiment']>>,
+    smart: Awaited<ReturnType<SmartMoneyService['getSmartMoneyBySymbol']>> | null,
+  ) {
+    const score = marketSentiment?.score != null ? Math.round(marketSentiment.score * 25 + 50) : 50;
+    const label = score > 60 ? '偏多' : score < 40 ? '偏空' : '中性';
+    const cot = smart?.cot;
+    const etf = smart?.etf;
     return {
       score,
-      label: score > 60 ? '偏多' : score < 40 ? '偏空' : '中性',
-      longPct: Math.round(50 + (Math.random() - 0.3) * 30),
-      shortPct: Math.round(20 + Math.random() * 20),
-      etfInflow: `+${Math.round(Math.random() * 600 + 100)}$M`,
-      cotChange: `${Math.random() > 0.4 ? '+' : '-'}${(Math.random() * 10).toFixed(1)}k`,
+      label,
+      sentimentSource: marketSentiment?.source ?? 'mock',
+      longPct: cot ? Math.round((cot.specLong / Math.max(1, cot.specLong + cot.specShort)) * 100) : null,
+      shortPct: cot ? Math.round((cot.specShort / Math.max(1, cot.specLong + cot.specShort)) * 100) : null,
+      etfInflow: etf ? `${etf.netFlow >= 0 ? '+' : ''}${etf.netFlow.toFixed(1)}$M` : null,
+      cotChange: cot ? `${cot.netSpecLong >= 0 ? '+' : ''}${(cot.netSpecLong / 1000).toFixed(1)}k` : null,
+      cotSource: smart?.sources?.cot ?? 'mock',
     };
   }
 }
+

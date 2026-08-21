@@ -7,6 +7,7 @@ import { fetchMockMarketData, MOCK_SYMBOLS } from "./mock";
 import type { MarketData, MarketSymbol, Quote, Candle, IndicatorSummary, Timeframe } from "./types";
 
 interface BackendSymbol {
+  id?: string;
   code: string;
   name: string;
   assetClass: string;
@@ -183,3 +184,61 @@ export function useMarketData(symbol: string, timeframe: Timeframe) {
 export { MOCK_SYMBOLS };
 
 
+
+export interface MarketSymbolInfo {
+  id: string;
+  code: string;
+  name: string;
+  assetClass: string;
+}
+
+/** 可自选/交易的标的列表（带 DB id，供 journal/watchlist 等表单使用）。 */
+export function useMarketSymbols() {
+  return useQuery({
+    queryKey: ["market", "symbols"],
+    queryFn: async (): Promise<MarketSymbolInfo[]> => {
+      if (featureIsMock("market")) {
+        return MOCK_SYMBOLS.map((s, i) => ({
+          id: `mock_${i}_${s.symbol}`,
+          code: s.symbol,
+          name: s.name,
+          assetClass: s.group,
+        }));
+      }
+      const list = await apiClient.get<BackendSymbol[]>("/market/symbols");
+      return list.map((s) => ({
+        id: s.id ?? s.code,
+        code: s.code,
+        name: s.name,
+        assetClass: s.assetClass,
+      }));
+    },
+    staleTime: 300_000,
+  });
+}
+
+
+
+
+
+/** 批量拉取实时行情（供自选/列表页展示价格），统一映射为前端 Quote。 */
+export function useMarketQuotes(symbols: string[]) {
+  const key = symbols.slice().sort().join(",");
+  return useQuery({
+    queryKey: ["market", "quotes", key],
+    queryFn: async (): Promise<Quote[]> => {
+      if (symbols.length === 0) return [];
+      if (featureIsMock("market")) {
+        const results = await Promise.all(symbols.map((s) => fetchMockMarketData(s, "1H")));
+        return results.map((d) => d.quote);
+      }
+      const raw = await apiClient.get<BackendQuote[]>("/market/quotes", {
+        params: { symbols: symbols.join(",") },
+      });
+      return raw.map(mapQuote);
+    },
+    enabled: symbols.length > 0,
+    staleTime: 15_000,
+    refetchInterval: 15_000,
+  });
+}

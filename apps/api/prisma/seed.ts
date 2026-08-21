@@ -14,18 +14,18 @@ async function main() {
 
   // Create symbols
   const symbolsData = [
-    { code: 'XAUUSD', name: '黄金/美元', assetClass: 'commodity', tickSize: 0.01 },
-    { code: 'XAGUSD', name: '白银/美元', assetClass: 'commodity', tickSize: 0.001 },
-    { code: 'BTCUSD', name: '比特币/美元', assetClass: 'crypto', tickSize: 0.1 },
-    { code: 'DXY', name: '美元指数', assetClass: 'index', tickSize: 0.01 },
-    { code: 'NAS100', name: '纳斯达克100指数', assetClass: 'index', tickSize: 0.1 },
-    { code: 'SPX500', name: '标普500指数', assetClass: 'index', tickSize: 0.1 },
-    { code: 'WTI', name: 'WTI原油', assetClass: 'commodity', tickSize: 0.01 },
-    { code: 'BRENT', name: '布伦特原油', assetClass: 'commodity', tickSize: 0.01 },
-    { code: 'GLD', name: 'SPDR黄金ETF', assetClass: 'etf', tickSize: 0.01 },
-    { code: 'SLV', name: 'iShares白银ETF', assetClass: 'etf', tickSize: 0.01 },
-    { code: 'SPY', name: 'SPDR标普500ETF', assetClass: 'etf', tickSize: 0.01 },
-    { code: 'US10Y', name: '美国10年期国债收益率', assetClass: 'bond', tickSize: 0.001 },
+    { code: 'XAUUSD', name: '黄金/美元', assetClass: 'commodity', tickSize: 0.01, exchange: 'OTC/COMEX', market: 'commodities', currency: 'USD', timezone: 'America/New_York', priceSource: 'twelve-data' },
+    { code: 'XAGUSD', name: '白银/美元', assetClass: 'commodity', tickSize: 0.001, exchange: 'OTC/COMEX', market: 'commodities', currency: 'USD', timezone: 'America/New_York', priceSource: 'twelve-data' },
+    { code: 'BTCUSD', name: '比特币/美元', assetClass: 'crypto', tickSize: 0.1, exchange: 'Binance', market: 'crypto', currency: 'USD', timezone: 'UTC', priceSource: 'binance' },
+    { code: 'DXY', name: '美元指数', assetClass: 'index', tickSize: 0.01, exchange: 'ICE', market: 'indices', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'NAS100', name: '纳斯达克100指数', assetClass: 'index', tickSize: 0.1, exchange: 'NASDAQ', market: 'indices', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'SPX500', name: '标普500指数', assetClass: 'index', tickSize: 0.1, exchange: 'CME', market: 'indices', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'WTI', name: 'WTI原油', assetClass: 'commodity', tickSize: 0.01, exchange: 'NYMEX', market: 'commodities', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'BRENT', name: '布伦特原油', assetClass: 'commodity', tickSize: 0.01, exchange: 'ICE', market: 'commodities', currency: 'USD', timezone: 'Europe/London', priceSource: 'tickflow' },
+    { code: 'GLD', name: 'SPDR黄金ETF', assetClass: 'etf', tickSize: 0.01, exchange: 'NYSE Arca', market: 'etf', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'SLV', name: 'iShares白银ETF', assetClass: 'etf', tickSize: 0.01, exchange: 'NYSE Arca', market: 'etf', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'SPY', name: 'SPDR标普500ETF', assetClass: 'etf', tickSize: 0.01, exchange: 'NYSE Arca', market: 'etf', currency: 'USD', timezone: 'America/New_York', priceSource: 'tickflow' },
+    { code: 'US10Y', name: '美国10年期国债收益率', assetClass: 'bond', tickSize: 0.001, exchange: 'US Treasury', market: 'bonds', currency: 'USD', timezone: 'America/New_York', priceSource: 'treasury' },
   ];
 
   const symbolMap: Record<string, string> = {};
@@ -277,3 +277,4 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+

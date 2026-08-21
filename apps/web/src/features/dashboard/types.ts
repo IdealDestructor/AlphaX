@@ -36,7 +36,8 @@ export interface Kpi {
   confidenceDelta: number;
   riskLevel: RiskLevel;
   atr: number;
-  sentiment: number;
+  /** CNN Fear & Greed 真实情绪分（0–100）；源不可用时为 null */
+  sentiment: number | null;
   sentimentLabel: string;
 }
 
@@ -60,10 +61,12 @@ export interface SignalRow {
 export interface Sentiment {
   score: number;
   label: string;
-  longPct: number;
-  shortPct: number;
-  etfInflow: string;
-  cotChange: string;
+  longPct: number | null;
+  shortPct: number | null;
+  etfInflow: string | null;
+  cotChange: string | null;
+  sentimentSource: string;
+  cotSource: string;
 }
 
 export interface NewsItem {
@@ -83,3 +86,4 @@ export interface DashboardData {
   news: NewsItem[];
   updatedAt: string;
 }
+

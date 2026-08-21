@@ -17,7 +17,7 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 | 阶段 | 状态 | 说明 |
 |------|------|------|
 | **V1 基础 MVP**（前后端 + API） | ✅ 核心已完成 | NestJS 16+ 模块、Prisma 持久化、前端主要页面已接入后端 |
-| **P0 数据源 PoC** | 🔄 进行中 | 已接入 TwelveData / Binance / Treasury / TickFlow 4 个真实 Provider + 分层降级；待本地验证与收尾 |
+| **P0 数据源 PoC** | 🔄 收尾中 | 4 个真实 Provider + 熔断/主备切换/串行限流 + 内存 TTL 缓存 + RSS 摄入；待本地验证 |
 | **P1 数据湖 + 回测** | ⏳ 未开始 | Parquet/DuckDB 数据湖、指标管线、Screener、回测、SSE |
 | **P2 AI 服务 + 投研** | ⏳ 未开始 | `apps/ai` Python 服务、MCP、多空辩论、资讯雷达 |
 | **P3 实时 + 商业化** | ⏳ 未开始 | WebSocket、四类监控、Stripe、Pro 门控 |
@@ -75,11 +75,11 @@ AlphaX 是一个基于 AI 的资本市场分析平台，通过实时行情、技
 ### 4. AI Signals / Forecast / Chat ✅ API 已实现（AI 为 mock/fallback）
 实时信号、概率带预测、自然语言问答助手；Chat 已支持 SSE 流式。
 
-### 5. News · Smart Money · Sentiment ✅ 接口已实现（SM/Sentiment 为确定性生成）
-新闻智能摘要、机构资金面板、市场情绪指数。News 走真实 RSS；Smart Money / Sentiment 为确定性快照，真实数据源待 P2/P3。
+### 5. News · Smart Money · Sentiment ✅ 接口 + 页面已实现（SM 的 COT 已接 CFTC 真实源；情绪已接 CNN Fear & Greed）
+新闻智能摘要、机构资金面板、市场情绪指数。News 走真实 RSS；Smart Money 的 COT 走 CFTC 官方（ETF/央行仍估算并标注）；市场情绪走 CNN Fear & Greed（真实）。
 
 ### 6. Alerts · Journal · Calculator · Backtesting 🔄 部分实现
-多通道提醒、交易复盘、仓位计算、策略回测。Alerts / Journal / Position Calculator 后端已实现；回测引擎未开始（P1）。
+多通道提醒、交易复盘、仓位计算、策略回测。Alerts / Journal / Position Calculator 后端与前端页面均已落地；回测引擎未开始（P1）。
 
 > 完整功能说明见 [PRD.md](./docs/PRD.md)。
 
@@ -171,3 +171,4 @@ pnpm dev
 ## License
 
 [MIT](./LICENSE) © 2026 Francis
+

@@ -309,7 +309,10 @@ export function getMockDashboard(symbol: string): DashboardData {
       shortPct: profile.shortPct,
       etfInflow: profile.etfInflow,
       cotChange: profile.cotChange,
+      sentimentSource: "mock",
+      cotSource: "mock",
     },
     news: NEWS[symbol] ?? NEWS["XAUUSD"]!,
   };
 }
+

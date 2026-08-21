@@ -1,31 +1,52 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MarketDataRegistry } from './providers/registry';
+import { MarketCacheService } from './cache/market-cache.service';
 import type { Candle, DataSourceStatus, MarketDataSource, Quote } from './providers/market-data.types';
+
+/** 过渡期内存缓存 TTL（正式版换 Redis，见 todos P0） */
+const QUOTE_TTL_MS = Number(process.env.MARKET_QUOTE_TTL_MS ?? '15000');
+const CANDLE_TTL_MS = Number(process.env.MARKET_CANDLE_TTL_MS ?? '60000');
 
 @Injectable()
 export class MarketService {
   constructor(
     private prisma: PrismaService,
     private registry: MarketDataRegistry,
+    private cache: MarketCacheService,
   ) {}
 
   async getSymbols() {
     return this.prisma.symbol.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } });
   }
 
-  /** 实时行情: 可映射标的走 TickFlow, 其余/失败自动降级 mock */
+  /** 实时行情: 按数据源路由, 失败自动降级; 内存 TTL 缓存 15s */
   async getQuotes(symbols?: string[] | string): Promise<Quote[]> {
     const requestedSymbols = this.normalizeSymbols(symbols);
     const where = requestedSymbols.length
       ? { code: { in: requestedSymbols }, isActive: true }
       : { isActive: true };
     const symbolList = await this.prisma.symbol.findMany({ where });
-    return this.registry.getQuotes(symbolList.map((s) => s.code));
+    const codes = symbolList.map((s) => s.code);
+    if (codes.length === 0) return [];
+
+    const cacheKey = `quotes:${codes.slice().sort().join(",")}`;
+    const cached = this.cache.get<Quote[]>(cacheKey);
+    if (cached) return cached;
+
+    const quotes = await this.registry.getQuotes(codes);
+    this.cache.set(cacheKey, quotes, QUOTE_TTL_MS);
+    return quotes;
   }
 
   async getCandles(symbol: string, interval: string, limit: number): Promise<Candle[]> {
-    return this.registry.getCandles(symbol, interval, limit);
+    const cacheKey = `candles:${symbol}:${interval}:${limit}`;
+    const cached = this.cache.get<Candle[]>(cacheKey);
+    if (cached) return cached;
+
+    const candles = await this.registry.getCandles(symbol, interval, limit);
+    this.cache.set(cacheKey, candles, CANDLE_TTL_MS);
+    return candles;
   }
 
   async getIndicators(symbol: string, interval: string, indicators: string[]) {
@@ -156,4 +177,3 @@ export class MarketService {
     return result;
   }
 }
-

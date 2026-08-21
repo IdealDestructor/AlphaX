@@ -16,7 +16,7 @@
 | **P2 AI 服务 + 投研** | 多 Agent 投研闭环 | ⏳ 未开始 | `apps/ai` · MCP Server · 多空辩论 · 资讯雷达 · 盘后复盘 |
 | **P3 实时 + 商业化** | 主动触达 + 变现 | ⏳ 未开始 | WebSocket 网关 · 四类监控 · Stripe 真实化 · Pro 门控 |
 
-> 当前分支 `main`，最近版本 4.6（2026-08-20）。
+> 当前分支 `main`，最近版本 4.9（2026-08-21）。
 
 ---
 
@@ -73,6 +73,34 @@
 - [x] 15 条新闻 / 8 个信号 / 6 条 AI 分析 / 5 条预测 / 4 条日志 / 4 个自选
 - [x] Demo 用户：`demo@alphax.com` / `demo123456`
 
+### 模拟数据接口 → 真实 API 对接（2026-08-21，api build / web typecheck / lint / build 绿）
+- [x] **Smart Money COT → CFTC 官方**：`cot.provider.ts` 解析每周 Disaggregated 报告（免费无 Key，COMEX Gold/Silver Money Manager 持仓），失败降级估算并标注 `sources.cot='cftc'|'mock'`；`GET /smart-money` 返回 `cot` 报告元信息
+- [x] **Sentiment → CNN Fear & Greed**：`fear-greed.provider.ts`（免费无 Key），作为 `/sentiment` 的 `market` 级真实情绪 + `/dashboard` KPI/看板联动；news 分量本已真实，social 仍估算（无免费源）
+- [x] **Forecast 去随机**：pUp/pDown/median/band 改由真实日K（ATR 波动率 + RSI/EMA 方向偏置）确定性计算，置信度由数据完整度决定
+- [x] **Analysis 去随机**：trend/action/levels/evidence 改由真实指标规则引擎（EMA/RSI/MACD/BB/ATR）确定性生成，`modelVersion=rule-v2.1`（真实 LLM 待 P2）
+- [x] **Dashboard 联动**：市场情绪分读 CNN、ETF/COT 字段读真实 Smart Money，去掉 `Math.random` 编造
+- [ ] **仍为估算/待 P2**：Chat mockAiResponse（LLM）、social 情绪分量、ETF 净流入/央行购金（无可靠免费 API）
+- [ ] 待本地验证：CFTC / CNN 端点 curl 复核（沙箱无外网）
+
+### 前后端对齐（2026-08-21 落地，typecheck / lint / build / test 绿）
+- [x] `/analysis/{symbol}/history` — 分析页 History tab 已接入 `AnalysisHistory`
+- [x] `/journal` 全套 CRUD + `/journal/stats` — 前端 `/journal` 页（表单/列表/统计/编辑/删除，Pro 门控）
+- [x] `/tools/position-calculator` — 前端 `/tools` 页（本地即时预览 + 后端权威计算，Pro 门控）
+- [x] `/sentiment` — 前端 `/sentiment` 页（情绪指数 + 新闻/社媒分量）
+- [x] `/smart-money` — 前端 `/smart-money` 页（ETF/COT/央行 + 14 日资金流历史，Pro 门控）
+- [x] `/watchlist` — 前端 `/watchlist` 页（增删 + 实时价格 + 配额提示）
+- [x] `/enterprise` — 前端 `/enterprise` 企业工作台（API 密钥管理 + 安全说明 + 套餐门控）
+- [x] 注册流程 UI 页面（`/register`，4.7 已落地）
+- [x] 导航接入：Sidebar 新增 6 项 + Topbar 标题/AssetSwitcher 排除
+
+### P0 数据源增强（2026-08-21 落地）
+- [x] Provider 健康检查：连续失败计数 + 熔断冷却（`MARKET_CIRCUIT_THRESHOLD` / `MARKET_CIRCUIT_COOLDOWN_MS`）
+- [x] 主备切换：失败自动尝试下一个可解析真实源，最后才 mock（quotes 批量 + candles 均支持）
+- [x] 串行限流：同一源最小请求间隔（`MARKET_MIN_REQUEST_INTERVAL_MS`），状态透出 `/market/data-source`
+- [x] 内存 TTL 缓存过渡（`MarketCacheService`：quote 15s / candle 60s，`MARKET_QUOTE_TTL_MS` / `MARKET_CANDLE_TTL_MS`）
+- [x] `symbols` 表扩展字段（exchange/market/currency/timezone/price_source）+ seed 补齐
+- [x] 新闻 RSS 收编为 Provider：零依赖 RSS/Atom 解析（`rss-xml.parser.ts`）+ `NewsRssService` + `POST /news/sync` 幂等入库
+
 ---
 
 ## 🔄 进行中（P0 收尾）
@@ -83,11 +111,11 @@
 - [ ] 前端 `apps/web` dev server 本地启动复核
 
 ### P0 剩余
-- [ ] 新闻 RSS 收编为 Provider（Google News / Kitco / CoinDesk / CNBC）
-- [ ] `/market/quotes|candles` 默认切换真实数据；`NEXT_PUBLIC_MOCK` 一键回退
-- [ ] Provider 健康检查 + 主备切换 + 串行限流（参考 a-stock-data `em_get`）
-- [ ] Redis 缓存（quote 5–15s / candle 30–60s）；P0 用内存 TTL 过渡
-- [ ] `symbols` 表扩展（exchange / market / currency / timezone / price_source）
+- [x] 新闻 RSS 收编为 Provider（零依赖解析 Google News / Kitco / CoinDesk / CNBC + `POST /news/sync` 幂等入库；真实源抓取待本地验证）
+- [x] `/market/quotes|candles` 默认真实数据（配置 Key 即走真实源）；`NEXT_PUBLIC_MOCK` 一键回退（机制就绪，端点待本地验证）
+- [x] Provider 健康检查（熔断计数 + 冷却）+ 主备切换（失败自动切下一真实源）+ 串行限流（最小请求间隔），状态透出 `/market/data-source`
+- [x] P0 内存 TTL 缓存过渡（quote 15s / candle 60s，`MarketCacheService`）；Redis 待 P3 换入
+- [x] `symbols` 表扩展（exchange / market / currency / timezone / price_source，schema+seed 已落地，`db push` 待本地执行）
 
 
 ### 注册 / 登录 / 付费授权（2026-08-20，技术方案见 docs/AUTH_BILLING_TECHNICAL_PLAN.md）
@@ -100,13 +128,7 @@
 - [x] 前端：/settings 真实化（资料/密码/币种/配色/通知/API Key + 403 升级引导）
 - [x] 本地全流程验证（注册→登录→设置→门控→模拟支付→授权码）+ typecheck/lint/test 绿
 
-### 前后端对齐（后端已实现、前端待消费）
-- [ ] `/analysis/{symbol}/history` — 前端 `AnalysisHistory` 组件未接入
-- [ ] `/journal` 全套 CRUD + `/journal/stats` — 前端无 journal 页面
-- [ ] `/tools/position-calculator` — 前端无 tools 页面
-- [ ] `/user/*`（profile/password/watchlist/settings）— 前端 settings 走 `/me`
-- [ ] `/sentiment`、`/smart-money`、`/billing`、`/watchlist`、`/enterprise` — 后端已实现，前端页面/消费待落地
-- [ ] 注册流程 UI 页面（`AuthProvider.register()` 已实现，页面未落地）
+
 
 ---
 
@@ -158,4 +180,7 @@
 
 ### 2026-08-20 — P0 数据源接入
 - TickFlow 接入 → 三类免费源调研落定 → 新增 Binance / Treasury / TwelveData → Registry 多 Provider 路由 + `/market/data-source`
+
+
+
 
